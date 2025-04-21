@@ -1,0 +1,350 @@
+/* File: app/dashboard/Dashboard.module.css
+
+.dashboardContainer {
+    width: 100vw;
+    height: 100vh;
+    background-color: #ffffff;
+    padding: 80px 20px 20px 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 25px;
+    background-color: #2c3e50;
+    color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+  }
+  
+  .actionsButton {
+    padding: 12px 20px;
+    border: none;
+    background-color: #3498db;
+    color: white;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+  }
+  
+  .actionsButton:hover {
+    background-color: #2980b9;
+    transform: scale(1.05);
+  }
+  
+  .tableContainer {
+    flex-grow: 1;
+    margin: 20px;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    overflow-x: auto;
+    max-height: calc(100vh - 160px);
+  }
+  
+  /* Add the rest from original Dashboard.css with className updates */
+   
+
+  /* General */
+.dashboardContainer {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f4f9;
+  color: #333;
+  overflow: hidden;
+  padding: 80px 20px 20px 20px;
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30px 25px;
+  background-color: #2c3e50;
+  color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+.header h1 {
+  margin: 0;
+  margin-left: 50px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: white;
+}
+
+/* Actions */
+.actions {}
+.actionsButton {
+  margin-right: 46px;
+  padding: 12px 20px;
+  border: none;
+  background-color: #3498db;
+  color: white;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+.actionsButton:hover {
+  background-color: #2980b9;
+  transform: scale(1.05);
+}
+
+/* Table */
+.tableContainer {
+  flex-grow: 1;
+  margin: 52px 0 0 0 ;
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+  max-height: calc(100vh - 160px);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 14px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  font-size: 1rem;
+}
+
+.table th {
+  background-color: #34495e;
+  color: white;
+  text-transform: uppercase;
+}
+
+.tableRow:hover {
+  background-color: #f4f4f9;
+}
+
+/* Status */
+.status {
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-weight: bold;
+  text-align: center;
+  display: inline-block;
+}
+
+.active {
+  background-color: #2ecc71;
+  color: white;
+}
+
+
+/* Hamburger */
+.hamburgerMenu {
+  cursor: pointer;
+  font-size: 2rem;
+  margin-right: 1rem;
+  color: white;
+  transition: transform 0.3s ease;
+}
+
+.hamburgerMenu:hover {
+  transform: scale(1.1);
+}
+
+.hamburgerSlideout {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 300px;
+  background-color: #34495e;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+  z-index: 1100;
+  transform: translateX(0);
+  transition: transform 0.3s ease-in-out;
+}
+
+.hamburgerHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background-color: #2c3e50;
+  color: white;
+  font-size: 1.2rem;
+}
+
+.menuOptions {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.menuOptions li {
+  padding: 15px;
+  cursor: pointer;
+  color: white;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.menuOptions li:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.closeBtn:hover {
+  color: #e74c3c;
+}
+
+/* Slideout Panel */
+.slideoutPanel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 800px;
+  height: 100%;
+  background-color: white;
+  box-shadow: -3px 0 10px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  transition: right 0.3s ease-in-out;
+  z-index: 1000;
+}
+
+/* Modal Overlay for Add User */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1500;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modalContent {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  position: relative;
+  width: 600px;
+  max-width: 90%;
+}
+
+/* Notification Panel */
+.notificationSlideout {
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 400px;
+  height: 100%;
+  background: white;
+  box-shadow: -4px 0 10px rgba(0, 0, 0, 0.2);
+  transform: translateX(0);
+  transition: transform 0.3s ease-in-out;
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+}
+
+.notificationHeader {
+  background: #2c3e50;
+  color: white;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.notificationBody {
+  padding: 15px;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+.notificationCard {
+  background: #f8f9fa;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  border-left: 5px solid #007bff;
+}
+
+.success {
+  border-left-color: #28a745;
+}
+.warning {
+  border-left-color: #ffc107;
+}
+.error {
+  border-left-color: #dc3545;
+}
+.info {
+  border-left-color: #17a2b8;
+}
+
+.date {
+  font-size: 12px;
+  color: #6c757d;
+  display: block;
+  margin-top: 5px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .slideoutPanel {
+    width: 100%;
+  }
+
+  .hamburgerMenu {
+    font-size: 1.5rem;
+  }
+
+  .tableContainer {
+    padding: 15px;
+  }
+
+  .table th,
+  .table td {
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+}
