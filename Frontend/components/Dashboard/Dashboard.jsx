@@ -124,15 +124,6 @@
 //             className={styles.searchInput}
 //           />
 //         </div>
-//         {/* <div className={styles.userInfoContainer}>
-//           <div className={styles.userAvatar}>
-//             <img src={userInfo.avatar || "/placeholder.svg"} alt="User Avatar" />
-//           </div>
-//           <div className={styles.userDetails}>
-//             <span className={styles.userName}>{userInfo.name}</span>
-//             <span className={styles.userRole}>{userInfo.role}</span>
-//           </div>
-//         </div> */}
 //         <div className={styles.actions}>
 //           <button className={styles.actionsButton} onClick={() => setSlideoutOpen(true)}>
 //             Upload Document
@@ -197,7 +188,9 @@
 //                     <td>
 //                       <span
 //                         className={`${styles.status} ${
-//                           row.Status?.toLowerCase() === "active" ? styles.active : styles["in-active"]
+//                           row.Status?.toLowerCase() === "active" ? styles.active : 
+//                           row.Status?.toLowerCase() === "about-end" ? styles.aboutEnd : 
+//                           styles["in-active"]
 //                         }`}
 //                       >
 //                         {row.Status || "Unknown"}
@@ -227,7 +220,9 @@
 //                                     <td>
 //                                       <span
 //                                         className={`${styles.status} ${
-//                                           row.Status?.toLowerCase() === "active" ? styles.active : styles["in-active"]
+//                                           row.Status?.toLowerCase() === "active" ? styles.active : 
+//                                           row.Status?.toLowerCase() === "about-end" ? styles.aboutEnd : 
+//                                           styles["in-active"]
 //                                         }`}
 //                                       >
 //                                         {row.Status || "Unknown"}
@@ -364,6 +359,9 @@ const Dashboard = () => {
     avatar: "/placeholder.svg?height=40&width=40",
   })
 
+  const [sortField, setSortField] = useState(null)
+  const [sortDirection, setSortDirection] = useState("asc")
+
   const formatDate = (dateString) => {
     if (!dateString) return "N/A"
     const date = new Date(dateString)
@@ -372,6 +370,43 @@ const Dashboard = () => {
       day: "2-digit",
       year: "numeric",
     }).format(date)
+  }
+
+  const handleSort = (field) => {
+    // If clicking the same field, toggle direction
+    if (sortField === field) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc")
+    } else {
+      // New field, set to ascending by default
+      setSortField(field)
+      setSortDirection("asc")
+    }
+  }
+
+  const sortData = (data) => {
+    if (!sortField) return data
+
+    return [...data].sort((a, b) => {
+      // Handle null or undefined values
+      const aValue = a[sortField] || ""
+      const bValue = b[sortField] || ""
+
+      // Handle date fields
+      if (sortField === "Start_date" || sortField === "end_date") {
+        const dateA = aValue ? new Date(aValue).getTime() : 0
+        const dateB = bValue ? new Date(bValue).getTime() : 0
+
+        return sortDirection === "asc" ? dateA - dateB : dateB - dateA
+      }
+
+      // Handle string fields
+      if (typeof aValue === "string" && typeof bValue === "string") {
+        return sortDirection === "asc" ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue)
+      }
+
+      // Handle numeric fields
+      return sortDirection === "asc" ? aValue - bValue : bValue - aValue
+    })
   }
 
   useEffect(() => {
@@ -431,9 +466,21 @@ const Dashboard = () => {
     }
   }
 
-  const filteredDashboardData = dashboardData.filter((row) =>
-    row.project_name?.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+  const filteredDashboardData = dashboardData.filter((row) => {
+    const searchFields = [
+      row.project_name,
+      row.Start_date,
+      row.end_date,
+      row.delivery_unit,
+      row.delivery_head,
+      row.delivery_manager,
+      row.Status,
+    ]
+
+    return searchFields.some((field) => field?.toString().toLowerCase().includes(searchTerm.toLowerCase()))
+  })
+
+  const sortedAndFilteredData = sortData(filteredDashboardData)
 
   if (loading) return <p>Loading...</p>
   if (error) return <p className="error">{error}</p>
@@ -448,21 +495,12 @@ const Dashboard = () => {
         <div className={styles.searchContainer}>
           <input
             type="text"
-            placeholder="Search project name..."
+            placeholder="Search across all columns..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className={styles.searchInput}
           />
         </div>
-        {/* <div className={styles.userInfoContainer}>
-          <div className={styles.userAvatar}>
-            <img src={userInfo.avatar || "/placeholder.svg"} alt="User Avatar" />
-          </div>
-          <div className={styles.userDetails}>
-            <span className={styles.userName}>{userInfo.name}</span>
-            <span className={styles.userRole}>{userInfo.role}</span>
-          </div>
-        </div> */}
         <div className={styles.actions}>
           <button className={styles.actionsButton} onClick={() => setSlideoutOpen(true)}>
             Upload Document
@@ -492,144 +530,169 @@ const Dashboard = () => {
         </div>
       )}
 
-<div className={styles.tableContainer}>
-  <table className={styles.table}>
-    <thead>
-      <tr>
-        <th>Project Name</th>
-        <th>Start Date</th>
-        <th>End Date</th>
-        <th>Delivery Unit</th>
-        <th>Delivery Head</th>
-        <th>Delivery Manager</th>
-        <th>Status</th>
-        <th>Notifications</th>
-      </tr>
-    </thead>
-    <tbody>
-      {filteredDashboardData.length > 0 ? (
-        [
-          // Adding a dummy record with a unique status
-          {
-            sow_id: "dummy_sow_id", 
-            project_name: "Ethciti", 
-            Start_date: "2025-01-01", 
-            end_date: "2025-05-11", 
-            delivery_unit: "DU-1", 
-            delivery_head: "Bharati Satpute", 
-            delivery_manager: "Tanuja Toke", 
-            Status: "About End",
-          },
-          ...filteredDashboardData
-        ].map((row, index) => (
-          <React.Fragment key={index}>
-            <tr className={styles.tableRow}>
-              <td className={styles.projectNameCell}>
-                <div className={styles.projectNameWrapper}>
-                  <span className={styles.expandIcon} onClick={() => toggleAccordion(index, row.sow_id)}>
-                    {expandedRow === index ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                  </span>
-                  <span>{row.project_name || "N/A"}</span>
-                </div>
-              </td>
-              <td>{formatDate(row.Start_date)}</td>
-              <td>{formatDate(row.end_date)}</td>
-              <td>{row.delivery_unit || "N/A"}</td>
-              <td>{row.delivery_head || "N/A"}</td>
-              <td>{row.delivery_manager || "N/A"}</td>
-              <td>
-                <span
-                  className={`${styles.status} ${
-                    row.Status?.toLowerCase() === "active" ? styles.active : 
-                    row.Status?.toLowerCase() === "about-end" ? styles.aboutEnd : 
-                    styles["in-active"]
-                  }`}
-                >
-                  {row.Status || "Unknown"}
-                </span>
-              </td>
-              <td>
-                <span role="button" onClick={() => handleShowNotifications(row.sow_id)}>
-                  🔔
-                </span>
-              </td>
+      <div className={styles.tableContainer}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th onClick={() => handleSort("project_name")} className={styles.sortableHeader}>
+                Project Name
+                {sortField === "project_name" && (
+                  <span className={styles.sortIndicator}>{sortDirection === "asc" ? " ▲" : " ▼"}</span>
+                )}
+              </th>
+              <th onClick={() => handleSort("Start_date")} className={styles.sortableHeader}>
+                Start Date
+                {sortField === "Start_date" && (
+                  <span className={styles.sortIndicator}>{sortDirection === "asc" ? " ▲" : " ▼"}</span>
+                )}
+              </th>
+              <th onClick={() => handleSort("end_date")} className={styles.sortableHeader}>
+                End Date
+                {sortField === "end_date" && (
+                  <span className={styles.sortIndicator}>{sortDirection === "asc" ? " ▲" : " ▼"}</span>
+                )}
+              </th>
+              <th onClick={() => handleSort("delivery_unit")} className={styles.sortableHeader}>
+                Delivery Unit
+                {sortField === "delivery_unit" && (
+                  <span className={styles.sortIndicator}>{sortDirection === "asc" ? " ▲" : " ▼"}</span>
+                )}
+              </th>
+              <th onClick={() => handleSort("delivery_head")} className={styles.sortableHeader}>
+                Delivery Head
+                {sortField === "delivery_head" && (
+                  <span className={styles.sortIndicator}>{sortDirection === "asc" ? " ▲" : " ▼"}</span>
+                )}
+              </th>
+              <th onClick={() => handleSort("delivery_manager")} className={styles.sortableHeader}>
+                Delivery Manager
+                {sortField === "delivery_manager" && (
+                  <span className={styles.sortIndicator}>{sortDirection === "asc" ? " ▲" : " ▼"}</span>
+                )}
+              </th>
+              <th onClick={() => handleSort("Status")} className={styles.sortableHeader}>
+                Status
+                {sortField === "Status" && (
+                  <span className={styles.sortIndicator}>{sortDirection === "asc" ? " ▲" : " ▼"}</span>
+                )}
+              </th>
+              <th>Notifications</th>
             </tr>
-            {expandedRow === index && (
-              <tr>
-                <td colSpan="8" className={styles.expandedContent}>
-                  <div className={styles.expandedTable}>
-                    <table>
-                      <tbody>
-                        {currentItems.length > 0 ? (
-                          currentItems.map((item, itemIndex) => (
-                            <tr key={itemIndex}>
-                              <td>{row.project_name || "N/A"}</td>
-                              <td>{formatDate(item.start_date)}</td>
-                              <td>{formatDate(item.end_date)}</td>
-                              <td>{item.delivery_unit || "N/A"}</td>
-                              <td>{row.delivery_head || "N/A"}</td>
-                              <td>{item.delivery_manager || row.delivery_manager || "N/A"}</td>
-                              <td>
-                                <span
-                                  className={`${styles.status} ${
-                                    row.Status?.toLowerCase() === "active" ? styles.active : 
-                                    row.Status?.toLowerCase() === "about end" ? styles.aboutEnd : 
-                                    styles["in-active"]
-                                  }`}
-                                >
-                                  {row.Status || "Unknown"}
-                                </span>
-                              </td>
-                              <td>
-                                <span role="button" onClick={() => handleShowNotifications(row.sow_id)}>
-                                  🔔
-                                </span>
-                              </td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td colSpan="8">No addendum data available</td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                    {detailedData.length > itemsPerPage && (
-                      <div className={styles.pagination}>
-                        <button
-                          onClick={() => paginate(currentPage - 1)}
-                          disabled={currentPage === 1}
-                          className={styles.paginationButton}
-                        >
-                          <ChevronLeft size={16} />
-                        </button>
-                        <span className={styles.pageInfo}>
-                          Page {currentPage} of {totalPages}
+          </thead>
+          <tbody>
+            {sortedAndFilteredData.length > 0 ? (
+              sortedAndFilteredData.map((row, index) => (
+                <React.Fragment key={index}>
+                  <tr className={styles.tableRow}>
+                    <td className={styles.projectNameCell}>
+                      <div className={styles.projectNameWrapper}>
+                        <span className={styles.expandIcon} onClick={() => toggleAccordion(index, row.sow_id)}>
+                          {expandedRow === index ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                         </span>
-                        <button
-                          onClick={() => paginate(currentPage + 1)}
-                          disabled={currentPage === totalPages}
-                          className={styles.paginationButton}
-                        >
-                          <ChevronRight size={16} />
-                        </button>
+                        <span>{row.project_name || "N/A"}</span>
                       </div>
-                    )}
-                  </div>
-                </td>
+                    </td>
+                    <td>{formatDate(row.Start_date)}</td>
+                    <td>{formatDate(row.end_date)}</td>
+                    <td>{row.delivery_unit || "N/A"}</td>
+                    <td>{row.delivery_head || "N/A"}</td>
+                    <td>{row.delivery_manager || "N/A"}</td>
+                    <td>
+                      <span
+                        className={`${styles.status} ${
+                          row.Status?.toLowerCase() === "active"
+                            ? styles.active
+                            : row.Status?.toLowerCase() === "about-end"
+                              ? styles.aboutEnd
+                              : styles["in-active"]
+                        }`}
+                      >
+                        {row.Status || "Unknown"}
+                      </span>
+                    </td>
+                    <td>
+                      <span role="button" onClick={() => handleShowNotifications(row.sow_id)}>
+                        🔔
+                      </span>
+                    </td>
+                  </tr>
+                  {expandedRow === index && (
+                    <tr>
+                      <td colSpan="8" className={styles.expandedContent}>
+                        <div className={styles.expandedTable}>
+                          <table>
+                            <tbody>
+                              {currentItems.length > 0 ? (
+                                currentItems.map((item, itemIndex) => (
+                                  <tr key={itemIndex}>
+                                    <td>{row.project_name || "N/A"}</td>
+                                    <td>{formatDate(item.start_date)}</td>
+                                    <td>{formatDate(item.end_date)}</td>
+                                    <td>{item.delivery_unit || "N/A"}</td>
+                                    <td>{row.delivery_head || "N/A"}</td>
+                                    <td>{row.delivery_manager || row.delivery_manager || "N/A"}</td>
+                                    <td>
+                                      <span
+                                        className={`${styles.status} ${
+                                          row.Status?.toLowerCase() === "active"
+                                            ? styles.active
+                                            : row.Status?.toLowerCase() === "about-end"
+                                              ? styles.aboutEnd
+                                              : styles["in-active"]
+                                        }`}
+                                      >
+                                        {row.Status || "Unknown"}
+                                      </span>
+                                    </td>
+                                    <td>
+                                      <span role="button" onClick={() => handleShowNotifications(row.sow_id)}>
+                                        🔔
+                                      </span>
+                                    </td>
+                                  </tr>
+                                ))
+                              ) : (
+                                <tr>
+                                  <td colSpan="8">No addendum data available</td>
+                                </tr>
+                              )}
+                            </tbody>
+                          </table>
+                          {detailedData.length > itemsPerPage && (
+                            <div className={styles.pagination}>
+                              <button
+                                onClick={() => paginate(currentPage - 1)}
+                                disabled={currentPage === 1}
+                                className={styles.paginationButton}
+                              >
+                                <ChevronLeft size={16} />
+                              </button>
+                              <span className={styles.pageInfo}>
+                                Page {currentPage} of {totalPages}
+                              </span>
+                              <button
+                                onClick={() => paginate(currentPage + 1)}
+                                disabled={currentPage === totalPages}
+                                className={styles.paginationButton}
+                              >
+                                <ChevronRight size={16} />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="8">{searchTerm ? `No projects found matching "${searchTerm}"` : "No data available"}</td>
               </tr>
             )}
-          </React.Fragment>
-        ))
-      ) : (
-        <tr>
-          <td colSpan="8">{searchTerm ? `No projects found matching "${searchTerm}"` : "No data available"}</td>
-        </tr>
-      )}
-    </tbody>
-  </table>
-</div>
-
+          </tbody>
+        </table>
+      </div>
 
       {isSlideoutOpen && (
         <div className={styles.slideoutPanel}>
