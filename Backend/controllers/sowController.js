@@ -95,11 +95,122 @@ exports.uploadSOW = async (req, res) => {
   }
 };
 
+exports.uploadAddendum = async (req, res) => {
+  try {
+    const {
+      sowId,
+      deliveryUnit,
+      stakeholders,
+      deliveryManager,
+      
+    } = req.body;
+
+    if (!sowId) {
+      return res.status(400).json({ error: "sowId is required." });
+    }
+
+    const filePath = req.file?.path;
+    if (!filePath) {
+      return res.status(400).json({ error: "PDF file is required." });
+    }
+
+    // Extract dates from PDF
+    const { startDate, endDate } = await extractDatesFromPDF(filePath);
+
+    // Prepare insert query
+    const query = `
+      INSERT INTO Addendum (
+        sow_id, file_name, uploaded_by, start_date, end_date,
+        delivery_unit, stakeholders, delivery_manager,  upload_date
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?,  ?, NOW())
+    `;
+
+    const params = [
+      sowId,
+      req.file.originalname,
+      1, // uploaded_by (replace with actual user ID from session/token)
+      startDate || null,
+      endDate || null,
+      deliveryUnit || null,
+      stakeholders || null,
+      deliveryManager || null,
+    ];
+
+    db.query(query, params, (err, result) => {
+      fs.unlinkSync(filePath); // Clean up uploaded file
+
+      if (err) {
+        console.error("DB error:", err);
+        return res.status(500).json({ error: "Failed to insert addendum into DB." });
+      }
+
+      res.json({
+        message: "Addendum uploaded successfully.",
+        addendumId: result.insertId,
+        startDate: startDate?.toISOString().split("T")[0] || null,
+        endDate: endDate?.toISOString().split("T")[0] || null,
+      });
+    });
+  } catch (err) {
+    console.error("Error uploading addendum:", err);
+
+    if (req.file?.path) {
+      try {
+        fs.unlinkSync(req.file.path);
+      } catch (unlinkErr) {
+        console.error("Cleanup error:", unlinkErr);
+      }
+    }
+
+    res.status(500).json({ error: "Internal server error." });
+  }
+};
+
+// exports.getDashboard = (req, res) => {
+//   db.query("WITH RankedSOW AS (SELECT s.sow_id,s.project_name,s.Start_date,s.end_date,s.delivery_unit,s.delivery_manager,CONCAT(u.First_name, ' ', u.Last_name) AS delivery_head,CASE WHEN s.status = 1 THEN 'Active' ELSE 'In-active' END AS Status,ROW_NUMBER() OVER (PARTITION BY s.project_name ORDER BY s.status DESC, s.sow_id DESC) AS row_num FROM sow AS s LEFT JOIN users AS u ON s.delivery_unit = u.delivery_unit AND u.role = 'Delivery Head' ) SELECT sow_id, project_name, Start_date, end_date, delivery_unit,delivery_manager, delivery_head, Status FROM RankedSOW WHERE row_num = 1 order by project_name", (err, results) => {
+//     if (err) return res.status(500).json({ error: "Failed to fetch" });
+//     res.json(results);
+//   });
+// };
+
 exports.getDashboard = (req, res) => {
-  db.query("WITH RankedSOW AS (SELECT s.sow_id,s.project_name,s.Start_date,s.end_date,s.delivery_unit,s.delivery_manager,CONCAT(u.First_name, ' ', u.Last_name) AS delivery_head,CASE WHEN s.status = 1 THEN 'Active' ELSE 'In-active' END AS Status,ROW_NUMBER() OVER (PARTITION BY s.project_name ORDER BY s.status DESC, s.sow_id DESC) AS row_num FROM sow AS s LEFT JOIN users AS u ON s.delivery_unit = u.delivery_unit AND u.role = 'Delivery Head' ) SELECT sow_id, project_name, Start_date, end_date, delivery_unit,delivery_manager, delivery_head, Status FROM RankedSOW WHERE row_num = 1 order by project_name", (err, results) => {
-    if (err) return res.status(500).json({ error: "Failed to fetch" });
-    res.json(results);
-  });
+  db.query(
+    `WITH RankedSOW AS (
+      SELECT 
+        s.sow_id,
+        s.project_name,
+        s.Start_date,
+        s.end_date,
+        s.delivery_unit,
+        s.delivery_manager,
+        CONCAT(u.First_name, ' ', u.Last_name) AS delivery_head,
+        CASE 
+          WHEN s.status = 1 THEN 'Active'
+          WHEN s.status = 2 THEN 'About-End'
+          ELSE 'In-active'
+        END AS Status,
+        ROW_NUMBER() OVER (PARTITION BY s.project_name ORDER BY s.status DESC, s.sow_id DESC) AS row_num
+      FROM sow AS s
+      LEFT JOIN users AS u ON s.delivery_unit = u.delivery_unit AND u.role = 'Delivery Head'
+    )
+    SELECT 
+      sow_id, 
+      project_name, 
+      Start_date, 
+      end_date, 
+      delivery_unit,
+      delivery_manager, 
+      delivery_head, 
+      Status
+    FROM RankedSOW
+    WHERE row_num = 1
+    ORDER BY project_name`,
+    (err, results) => {
+      if (err) return res.status(500).json({ error: "Failed to fetch" });
+      res.json(results);
+    }
+  );
 };
 
 
@@ -108,7 +219,7 @@ exports.getDeliveryManagers = (req, res) => {
   const query = `
     SELECT user_id, First_name, Last_name, email, role, delivery_unit 
     FROM Users 
-    WHERE role = 'Delivery-Manager';
+    WHERE role = 'Delivery Manager';
   `;
 
   db.query(query, (err, results) => {
@@ -119,3 +230,33 @@ exports.getDeliveryManagers = (req, res) => {
     res.json(results);
   });
 };
+
+//Fetching all the details of the Addendums in the SOW
+exports.getAddendumsBySowId = (req, res) => {
+  const { sowId } = req.params
+
+  const query = `
+    SELECT 
+      addendum_id, 
+      sow_id, 
+      file_name, 
+      uploaded_by, 
+      start_date, 
+      end_date, 
+      delivery_unit, 
+      stakeholders, 
+      delivery_manager, 
+      upload_date 
+    FROM addendum 
+    WHERE sow_id = ?
+  `
+
+  db.query(query, [sowId], (err, results) => {
+    if (err) {
+      console.error('Error fetching addendums:', err)
+      return res.status(500).json({ error: 'Internal Server Error' })
+    }
+
+    res.status(200).json(results)
+  })
+}

@@ -8,6 +8,7 @@ const authRoutes = require("./routes/authRoutes");
 const sowRoutes = require("./routes/sowRoutes");
 const userRoutes = require("./routes/userRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+const dropdownRoutes = require("./routes/dropdownRoutes");
 
 const { sendNotifications } = require("./controllers/notificationController");
 
@@ -23,7 +24,7 @@ app.use("/api", authRoutes);
 app.use("/api", sowRoutes);
 app.use("/api", userRoutes);
 app.use("/api", notificationRoutes);
-
+app.use("/api", dropdownRoutes);
 
 
 

@@ -5,7 +5,8 @@ import styles from "./UploadSOW.module.css";
 
 const UploadSOW = ({ onClose }) => {
   const [file, setFile] = useState(null);
-  const [projectName, setProjectName] = useState("");
+  const [projectId, setProjectId] = useState(""); // For Addendum
+  const [projectName, setProjectName] = useState(""); // For SOW
   const [deliveryUnit, setDeliveryUnit] = useState("");
   const [deliveryManager, setDeliveryManager] = useState("");
   const [stakeholders, setStakeholders] = useState([]);
@@ -14,46 +15,52 @@ const UploadSOW = ({ onClose }) => {
   const [ocrData, setOcrData] = useState({ startDate: "", endDate: "" });
   const [managers, setManagers] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [formType, setFormType] = useState("SOW");
+  const [sowList, setSowList] = useState([]);
 
   useEffect(() => {
-    const fetchDeliveryManagers = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/DeliveryManager`);
-        if (!response.ok) throw new Error(`Error: ${response.status} - ${response.statusText}`);
-        const data = await response.json();
-        setManagers(data);
+        const [dmRes, sowRes] = await Promise.all([
+          fetch("http://localhost:5000/api/DeliveryManager"),
+          fetch("http://localhost:5000/api/sows"),
+        ]);
+        const dmData = await dmRes.json();
+        const sowData = await sowRes.json();
+
+        setManagers(dmData);
+        setSowList(sowData);
       } catch (error) {
-        console.error("Failed to fetch delivery managers:", error);
-        setMessage("Unable to fetch delivery managers. Please try again later.");
+        console.error("Fetch error:", error);
+        setMessage("Failed to load required data.");
       }
     };
-
-    fetchDeliveryManagers();
+    fetchData();
   }, []);
 
   const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    if (selectedFile && selectedFile.type !== "application/pdf") {
-      setMessage("Only PDF files are allowed.");
+    const selected = e.target.files[0];
+    if (selected && selected.type !== "application/pdf") {
+      setMessage("Only PDF files allowed.");
       setFile(null);
     } else {
       setMessage("");
-      setFile(selectedFile);
+      setFile(selected);
     }
   };
 
   const handleStakeholderAdd = (e) => {
     if (e.key === "Enter" || e.key === ",") {
       e.preventDefault();
-      const trimmedInput = stakeholderInput.trim();
+      const trimmed = stakeholderInput.trim();
       if (
-        trimmedInput &&
-        /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedInput) &&
-        !stakeholders.includes(trimmedInput)
+        trimmed &&
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed) &&
+        !stakeholders.includes(trimmed)
       ) {
-        setStakeholders([...stakeholders, trimmedInput]);
+        setStakeholders([...stakeholders, trimmed]);
         setStakeholderInput("");
-      } else if (!trimmedInput) {
+      } else if (!trimmed) {
         setMessage("Please enter a valid email.");
       }
     }
@@ -67,36 +74,48 @@ const UploadSOW = ({ onClose }) => {
     e.preventDefault();
 
     if (!file) {
-      setMessage("Please select a valid PDF file to upload.");
+      setMessage("Please select a valid PDF file.");
       return;
     }
 
     setIsLoading(true);
-
     const formData = new FormData();
+    
     formData.append("pdf", file);
     formData.append("stakeholders", stakeholders.join(","));
-    formData.append("projectName", projectName);
     formData.append("deliveryUnit", deliveryUnit);
     formData.append("deliveryManager", deliveryManager);
+    formData.append("type", formType);
+
+    if (formType === "SOW") {
+      formData.append("projectName", projectName);
+    } else {
+      console.log("Project ID:", projectId); // Debugging line
+      formData.append("sowId", projectId); // <-- Correct usage of ID
+    }
+
+    const endpoint =
+      formType === "SOW"
+        ? "http://localhost:5000/api/upload"
+        : "http://localhost:5000/api/uploadAddendum";
 
     try {
-      const response = await fetch("http://localhost:5000/api/upload", {
+      const res = await fetch(endpoint, {
         method: "POST",
         body: formData,
       });
+      const data = await res.json();
 
-      const data = await response.json();
-      if (response.ok) {
+      if (res.ok) {
         setMessage(data.message);
         setOcrData({ startDate: data.startDate, endDate: data.endDate });
         onClose();
       } else {
-        setMessage(data.error || "An error occurred while processing the file.");
+        setMessage(data.error || "Upload failed.");
       }
     } catch (err) {
-      console.error("Error uploading file:", err);
-      setMessage("An error occurred. Please try again later.");
+      console.error("Upload error:", err);
+      setMessage("Error uploading file.");
     } finally {
       setIsLoading(false);
     }
@@ -104,97 +123,149 @@ const UploadSOW = ({ onClose }) => {
 
   return (
     <div className={styles["slide-out"]}>
-    <div className={styles["wizard-container"]}>
-      <div className={styles["wizard-header"]}>
-        <h1>Upload And Manage SOW Documents</h1>
-      </div>
+      <div className={styles["wizard-container"]}>
+        <div className={styles["wizard-header"]}>
+          <h1>Upload And Manage SOW Documents</h1>
+        </div>
 
-      <form onSubmit={handleSubmit}>
         <div className={styles["form-section"]}>
-          <h3>Project Details</h3>
-          <div className={styles["form-group"]}>
-            <label htmlFor="project-name">Project Name</label>
+        <label className={styles["form-label"]}>Select the type of Document</label>
+          <label className={styles["radio-label"]}>
             <input
-              type="text"
-              id="project-name"
-              value={projectName}
-              onChange={(e) => setProjectName(e.target.value)}
-              placeholder="Enter project name"
-              required
+              type="radio"
+              value="SOW"
+              checked={formType === "SOW"}
+              onChange={() => setFormType("SOW")}
             />
-          </div>
-          <div className={styles["form-group"]}>
-            <label htmlFor="delivery-unit">Delivery Unit</label>
-            <select
-              id="delivery-unit"
-              value={deliveryUnit}
-              onChange={(e) => setDeliveryUnit(e.target.value)}
-              required
-            >
-              <option value="">Select Delivery Unit</option>
-              <option value="DU-1">Unit 1</option>
-              <option value="DU-2">Unit 2</option>
-              <option value="DU-3">Unit 3</option>
-              <option value="DU-4">Unit 4</option>
-              <option value="DU-5">Unit 5</option>
-            </select>
-          </div>
-          <div className={styles["form-group"]}>
-            <label htmlFor="delivery-manager">Delivery Manager</label>
-            <select
-              id="delivery-manager"
-              value={deliveryManager}
-              onChange={(e) => setDeliveryManager(e.target.value)}
-              required
-            >
-              <option value="">Select Delivery Manager</option>
-              {managers.map((m) => (
-                <option key={m.user_id} value={`${m.First_name} ${m.Last_name}`}>
-                  {m.First_name} {m.Last_name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className={styles["form-group"]}>
-            <label htmlFor="stakeholders">Stakeholders</label>
+            SOW
+          </label>
+          <label className={styles["radio-label"]}>
             <input
-              type="text"
-              id="stakeholders"
-              value={stakeholderInput}
-              onChange={(e) => setStakeholderInput(e.target.value)}
-              onKeyDown={handleStakeholderAdd}
-              placeholder="Enter email and press Enter or comma"
+              type="radio"
+              value="Addendum"
+              checked={formType === "Addendum"}
+              onChange={() => setFormType("Addendum")}
             />
-            <div className={styles["chip-container"]}>
-              {stakeholders.map((email, index) => (
-                <div key={index} className={styles["chip"]}>
-                  {email}
-                  <span className={styles["close"]} onClick={() => handleStakeholderRemove(email)}>
-                    &times;
-                  </span>
-                </div>
-              ))}
+            Addendum
+          </label>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          <div className={styles["form-section"]}>
+            <h3>Project Details</h3>
+
+            <div className={styles["form-group"]}>
+              <label htmlFor="project-name">Project Name</label>
+              {formType === "SOW" ? (
+                <input
+                  type="text"
+                  id="project-name"
+                  value={projectName}
+                  onChange={(e) => setProjectName(e.target.value)}
+                  placeholder="Enter project name"
+                  required
+                />
+              ) : (
+                <select
+                  id="project-id"
+                  value={projectId}
+                  onChange={(e) => setProjectId(e.target.value)}
+                  required
+                >
+                  <option value="">Select existing SOW</option>
+                  {sowList.map((sow) => (
+                    <option key={sow.sow_id} value={sow.sow_id}>
+                      {sow.project_name.trim()}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+
+            <div className={styles["form-group"]}>
+              <label htmlFor="delivery-unit">Delivery Unit</label>
+              <select
+                id="delivery-unit"
+                value={deliveryUnit}
+                onChange={(e) => setDeliveryUnit(e.target.value)}
+                required
+              >
+                <option value="">Select Delivery Unit</option>
+                <option value="DU-1">Unit 1</option>
+                <option value="DU-2">Unit 2</option>
+                <option value="DU-3">Unit 3</option>
+                <option value="DU-4">Unit 4</option>
+                <option value="DU-5">Unit 5</option>
+              </select>
+            </div>
+
+            <div className={styles["form-group"]}>
+              <label htmlFor="delivery-manager">Delivery Manager</label>
+              <select
+                id="delivery-manager"
+                value={deliveryManager}
+                onChange={(e) => setDeliveryManager(e.target.value)}
+                required
+              >
+                <option value="">Select Delivery Manager</option>
+                {managers.map((m) => (
+                  <option key={m.user_id} value={`${m.First_name} ${m.Last_name}`}>
+                    {m.First_name} {m.Last_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className={styles["form-group"]}>
+              <label htmlFor="stakeholders">Stakeholders</label>
+              <input
+                type="text"
+                id="stakeholders"
+                value={stakeholderInput}
+                onChange={(e) => setStakeholderInput(e.target.value)}
+                onKeyDown={handleStakeholderAdd}
+                placeholder="Enter email and press Enter or comma"
+              />
+              <div className={styles["chip-container"]}>
+                {stakeholders.map((email, i) => (
+                  <div key={i} className={styles["chip"]}>
+                    {email}
+                    <span
+                      className={styles["close"]}
+                      onClick={() => handleStakeholderRemove(email)}
+                    >
+                      &times;
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className={styles["form-section"] + " " + styles["file-upload"]}>
-          <p>Drag and drop your PDF files here, or</p>
-          <label htmlFor="file-upload">Browse Files</label>
-          <input type="file" id="file-upload" accept="application/pdf" onChange={handleFileChange} required />
-          <p>Maximum file size: 10MB</p>
-        </div>
+          <div className={`${styles["form-section"]} ${styles["file-upload"]}`}>
+            <p>Drag and drop your PDF files here, or</p>
+            <label htmlFor="file-upload">Browse Files</label>
+            <input
+              type="file"
+              id="file-upload"
+              accept="application/pdf"
+              onChange={handleFileChange}
+              required
+            />
+            <p>Maximum file size: 10MB</p>
+          </div>
 
-        <div className={styles["actions"]}>
-          <button type="submit" className={styles["continue-btn"]} disabled={isLoading}>
-            {isLoading ? "Uploading..." : "Upload and Process"}
-          </button>
-          <button type="button" className={styles["continue-btn"]} onClick={onClose} disabled={isLoading}>
-            Close
-          </button>
-        </div>
-      </form>
+          <div className={styles["actions"]}>
+            <button type="submit" className={styles["continue-btn"]} disabled={isLoading}>
+              {isLoading ? "Uploading..." : "Upload and Process"}
+            </button>
+            <button type="button" className={styles["continue-btn"]} onClick={onClose} disabled={isLoading}>
+              Close
+            </button>
+          </div>
+        </form>
       </div>
+
       {message && <p className={styles["message"]}>{message}</p>}
 
       {ocrData.startDate && ocrData.endDate && (

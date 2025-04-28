@@ -160,7 +160,7 @@ exports.sendNotifications = () => {
             <p>Please take necessary action before the deadline to avoid any service disruption.</p>
         
             <p>Best Regards,</p>
-            <p><strong>Your Team</strong></p>
+            <p><strong>Harbinger Group</strong></p>
           `,
         };
 
