@@ -495,7 +495,7 @@ const Dashboard = () => {
         <div className={styles.searchContainer}>
           <input
             type="text"
-            placeholder="Search across all columns..."
+            placeholder="Search"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className={styles.searchInput}
