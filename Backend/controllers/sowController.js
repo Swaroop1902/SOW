@@ -326,7 +326,8 @@ exports.getAddendumsBySowId = (req, res) => {
       delivery_unit, 
       stakeholders, 
       delivery_manager, 
-      upload_date 
+      upload_date,
+      addendum_type 
     FROM addendum 
     WHERE sow_id = ?
   `
