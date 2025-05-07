@@ -11,7 +11,7 @@ const notificationRoutes = require("./routes/notificationRoutes");
 const dropdownRoutes = require("./routes/dropdownRoutes");
 
 const { sendNotifications } = require("./controllers/notificationController");
-
+const { updateSOWStatus } = require('./controllers/sowStatusController'); // For updating SOW status
 
 // require("./cron/scheduler");
 
@@ -39,8 +39,12 @@ cron.schedule("0 9 * * *", () => {
 });
 
 
+// updateSOWStatus(); // Call the function to update SOW status immediately on server start
 
-
+cron.schedule("0 9 * * *", () => {
+  updateSOWStatus();
+  console.log("Scheduled notification sent at 9 AM");
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
