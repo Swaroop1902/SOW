@@ -9,6 +9,7 @@ const sowRoutes = require("./routes/sowRoutes");
 const userRoutes = require("./routes/userRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const dropdownRoutes = require("./routes/dropdownRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
 
 const { sendNotifications } = require("./controllers/notificationController");
 const { updateSOWStatus } = require('./controllers/sowStatusController'); // For updating SOW status
@@ -25,7 +26,7 @@ app.use("/api", sowRoutes);
 app.use("/api", userRoutes);
 app.use("/api", notificationRoutes);
 app.use("/api", dropdownRoutes);
-
+app.use("/api", dashboardRoutes);
 
 
 

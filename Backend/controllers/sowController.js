@@ -247,51 +247,51 @@ exports.uploadAddendum = async (req, res) => {
 };
 
 
-// exports.getDashboard = (req, res) => {
-//   db.query("WITH RankedSOW AS (SELECT s.sow_id,s.project_name,s.Start_date,s.end_date,s.delivery_unit,s.delivery_manager,CONCAT(u.First_name, ' ', u.Last_name) AS delivery_head,CASE WHEN s.status = 1 THEN 'Active' ELSE 'In-active' END AS Status,ROW_NUMBER() OVER (PARTITION BY s.project_name ORDER BY s.status DESC, s.sow_id DESC) AS row_num FROM sow AS s LEFT JOIN users AS u ON s.delivery_unit = u.delivery_unit AND u.role = 'Delivery Head' ) SELECT sow_id, project_name, Start_date, end_date, delivery_unit,delivery_manager, delivery_head, Status FROM RankedSOW WHERE row_num = 1 order by project_name", (err, results) => {
-//     if (err) return res.status(500).json({ error: "Failed to fetch" });
-//     res.json(results);
-//   });
-// };
+// // exports.getDashboard = (req, res) => {
+// //   db.query("WITH RankedSOW AS (SELECT s.sow_id,s.project_name,s.Start_date,s.end_date,s.delivery_unit,s.delivery_manager,CONCAT(u.First_name, ' ', u.Last_name) AS delivery_head,CASE WHEN s.status = 1 THEN 'Active' ELSE 'In-active' END AS Status,ROW_NUMBER() OVER (PARTITION BY s.project_name ORDER BY s.status DESC, s.sow_id DESC) AS row_num FROM sow AS s LEFT JOIN users AS u ON s.delivery_unit = u.delivery_unit AND u.role = 'Delivery Head' ) SELECT sow_id, project_name, Start_date, end_date, delivery_unit,delivery_manager, delivery_head, Status FROM RankedSOW WHERE row_num = 1 order by project_name", (err, results) => {
+// //     if (err) return res.status(500).json({ error: "Failed to fetch" });
+// //     res.json(results);
+// //   });
+// // };
 
-exports.getDashboard = (req, res) => {
-  db.query(
-    `WITH RankedSOW AS (
-      SELECT 
-        s.sow_id,
-        s.project_name,
-        s.Start_date,
-        s.end_date,
-        s.delivery_unit,
-        s.delivery_manager,
-        CONCAT(u.First_name, ' ', u.Last_name) AS delivery_head,
-        CASE 
-          WHEN s.status = 1 THEN 'Active'
-          WHEN s.status = 2 THEN 'About-End'
-          ELSE 'In-active'
-        END AS Status,
-        ROW_NUMBER() OVER (PARTITION BY s.project_name ORDER BY s.status DESC, s.sow_id DESC) AS row_num
-      FROM sow AS s
-      LEFT JOIN users AS u ON s.delivery_unit = u.delivery_unit AND u.role = 'Delivery Head'
-    )
-    SELECT 
-      sow_id, 
-      project_name, 
-      Start_date, 
-      end_date, 
-      delivery_unit,
-      delivery_manager, 
-      delivery_head, 
-      Status
-    FROM RankedSOW
-    WHERE row_num = 1
-    ORDER BY project_name`,
-    (err, results) => {
-      if (err) return res.status(500).json({ error: "Failed to fetch" });
-      res.json(results);
-    }
-  );
-};
+// exports.getDashboard = (req, res) => {
+//   db.query(
+//     `WITH RankedSOW AS (
+//       SELECT 
+//         s.sow_id,
+//         s.project_name,
+//         s.Start_date,
+//         s.end_date,
+//         s.delivery_unit,
+//         s.delivery_manager,
+//         CONCAT(u.First_name, ' ', u.Last_name) AS delivery_head,
+//         CASE 
+//           WHEN s.status = 1 THEN 'Active'
+//           WHEN s.status = 2 THEN 'About-End'
+//           ELSE 'In-active'
+//         END AS Status,
+//         ROW_NUMBER() OVER (PARTITION BY s.project_name ORDER BY s.status DESC, s.sow_id DESC) AS row_num
+//       FROM sow AS s
+//       LEFT JOIN users AS u ON s.delivery_unit = u.delivery_unit AND u.role = 'Delivery Head'
+//     )
+//     SELECT 
+//       sow_id, 
+//       project_name, 
+//       Start_date, 
+//       end_date, 
+//       delivery_unit,
+//       delivery_manager, 
+//       delivery_head, 
+//       Status
+//     FROM RankedSOW
+//     WHERE row_num = 1
+//     ORDER BY project_name`,
+//     (err, results) => {
+//       if (err) return res.status(500).json({ error: "Failed to fetch" });
+//       res.json(results);
+//     }
+//   );
+// };
 
 
 // Fetch Delivery Managers

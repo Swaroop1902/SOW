@@ -10,17 +10,39 @@ const Login = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const router = useRouter();
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setErrorMessage('');
+
+  //   try {
+  //     const response = await axios.post('http://localhost:5000/api/login', {
+  //       email,
+  //       password,
+  //     });
+
+  //     if (response.data.success) {
+  //       router.push('/dashboard');
+  //     } else {
+  //       setErrorMessage('Invalid email or password.');
+  //     }
+  //   } catch (error) {
+  //     console.error('Error during login:', error);
+  //     setErrorMessage('An error occurred. Please try again later.');
+  //   }
+  // };
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
-
+  
     try {
       const response = await axios.post('http://localhost:5000/api/login', {
         email,
         password,
       });
-
+  
       if (response.data.success) {
+        // Assuming the token is in response.data.token
+        localStorage.setItem('token', response.data.token); // Store token in localStorage
         router.push('/dashboard');
       } else {
         setErrorMessage('Invalid email or password.');
@@ -30,7 +52,7 @@ const Login = () => {
       setErrorMessage('An error occurred. Please try again later.');
     }
   };
-
+  
   return (
     <div className={styles['login-container']}>
       <img src="/logo.jpeg" alt="WaveSOW Logo" className={styles.logo} />
