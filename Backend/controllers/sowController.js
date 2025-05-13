@@ -317,19 +317,24 @@ exports.getAddendumsBySowId = (req, res) => {
 
   const query = `
     SELECT 
-      addendum_id, 
-      sow_id, 
-      file_name, 
-      uploaded_by, 
-      start_date, 
-      end_date, 
-      delivery_unit, 
-      stakeholders, 
-      delivery_manager, 
-      upload_date,
-      addendum_type 
-    FROM addendum 
-    WHERE sow_id = ?
+  addendum_id, 
+  sow_id, 
+  file_name, 
+  uploaded_by, 
+  start_date, 
+  end_date, 
+  delivery_unit, 
+  stakeholders, 
+  delivery_manager, 
+  upload_date,
+  addendum_type,
+  CASE 
+    WHEN status = 1 THEN 'Active'
+    WHEN status = 2 THEN 'About-End'
+    ELSE 'In-active'
+  END AS status
+FROM addendum 
+WHERE sow_id = ?
   `
 
   db.query(query, [sowId], (err, results) => {
