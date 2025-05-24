@@ -233,6 +233,7 @@ const Dashboard = () => {
     verifyToken();
   }, []);
 
+  /*
   const handleShowNotifications = async (sowId) => {
     setSelectedSow(sowId);
     setNotificationSlideoutOpen(true);
@@ -251,6 +252,35 @@ const Dashboard = () => {
       setNotifications([]);
     }
   };
+  */
+ const handleShowNotifications = async (sowId) => {
+  setSelectedSow(sowId);
+  setNotificationSlideoutOpen(true);
+
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axios.get(
+      `http://localhost:5000/api/notifications/${sowId}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    // Map status to type for coloring
+    const notificationsWithType = response.data.map((n) => ({
+      ...n,
+      type:
+        n.status === "Sent"
+          ? "success"
+          : n.status === "Pending"
+          ? "warning"
+          : "info", // fallback
+    }));
+    setNotifications(notificationsWithType);
+  } catch (error) {
+    console.error("Error fetching notifications:", error);
+    setNotifications([]);
+  }
+};
 
   const toggleAccordion = async (index, sowId) => {
     if (expandedRow === index) {
@@ -372,7 +402,7 @@ const Dashboard = () => {
             </button>
           </div>
           <ul className={styles.menuOptions}>
-            {userInfo.role === "Admin" && (
+                        {(userInfo.role === "Admin" || userInfo.role === "Delivery Head") && (
               <li
                 onClick={() => {
                   setAddUserModalOpen(true);

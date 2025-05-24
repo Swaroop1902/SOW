@@ -13,7 +13,7 @@ const dashboardRoutes = require("./routes/dashboardRoutes");
 
 const { sendNotifications } = require("./controllers/notificationController");
 const { updateSOWStatus } = require('./controllers/sowStatusController'); // For updating SOW status
-
+const { importSOWs } = require("./controllers/cronforinsertingSOW"); // For importing SOWs from SharePoint
 // require("./cron/scheduler");
 
 const app = express();
@@ -45,6 +45,15 @@ cron.schedule("0 9 * * *", () => {
 cron.schedule("0 9 * * *", () => {
   updateSOWStatus();
   console.log("Scheduled notification sent at 9 AM");
+});
+
+
+// Cron job to import SOWs from SharePoint every day at 2 AM
+importSOWs();
+
+cron.schedule('0 2 * * *', () => {
+  console.log('⏰ Running SOW import cron job...');
+  importSOWs();
 });
 
 const PORT = process.env.PORT || 5000;
