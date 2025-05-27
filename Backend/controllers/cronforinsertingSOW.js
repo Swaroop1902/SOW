@@ -453,12 +453,7 @@ const mysql = require('mysql2/promise');
 const fs = require('fs');
 const path = require('path');
 
-const TENANT_ID = '';
-const CLIENT_ID = '';
-const CLIENT_SECRET = '';
-const SITE_DOMAIN = '';
-const SITE_NAME = '';
-const FOLDER_PATH = '';
+
 
 // MySQL DB Config
 const dbConfig = {

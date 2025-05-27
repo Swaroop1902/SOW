@@ -183,7 +183,7 @@ exports.sendNotifications = () => {
   );
 };
 
-
+/*
 // ✅ New: Generate notifications
 exports.generateNotifications = async function generateNotifications(sow_id, start_date, end_date) {
   try {
@@ -208,6 +208,48 @@ exports.generateNotifications = async function generateNotifications(sow_id, sta
 
     const insertQuery = `
       INSERT INTO notifications (sow_id, notification_date, message)
+      VALUES ?
+    `;
+
+    db.query(insertQuery, [reminders], (err, result) => {
+      if (err) {
+        console.error("Database error during notification insert:", err);
+      } else {
+        console.log("Notifications generated successfully!");
+      }
+    });
+  } catch (err) {
+    console.error("Error generating notifications:", err.message);
+  }
+};
+*/
+// ...existing code...
+
+// ✅ New: Generate notifications
+
+exports.generateNotifications = async function generateNotifications(sow_id, start_date, end_date) {
+  try {
+    console.log("Generating notifications...");
+    console.log("Start Date:", start_date);
+    console.log("End Date:", end_date);
+
+    const reminders = [];
+    const firstReminder = moment(end_date).subtract(1, 'month').toDate();
+    const secondReminder = moment(firstReminder).add(3, 'days').toDate();
+    const thirdReminder = moment(secondReminder).add(5, 'days').toDate();
+    const fourthReminder = moment(thirdReminder).add(1, 'week').toDate();
+    const fifthReminder = moment(fourthReminder).add(1, 'week').toDate();
+
+    reminders.push(
+      [sow_id, firstReminder, '1 month before the end date.', 1],
+      [sow_id, secondReminder, '3 days after the first reminder.', 2],
+      [sow_id, thirdReminder, '5 days after the second reminder.', 3],
+      [sow_id, fourthReminder, '1 week after the third reminder.', 4],
+      [sow_id, fifthReminder, '2 weeks after the third reminder.', 5]
+    );
+
+    const insertQuery = `
+      INSERT INTO notifications (sow_id, notification_date, message, notification_number)
       VALUES ?
     `;
 

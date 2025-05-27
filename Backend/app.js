@@ -49,7 +49,7 @@ cron.schedule("0 9 * * *", () => {
 
 
 // Cron job to import SOWs from SharePoint every day at 2 AM
-importSOWs();
+// importSOWs();
 
 cron.schedule('0 2 * * *', () => {
   console.log('⏰ Running SOW import cron job...');
