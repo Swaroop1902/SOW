@@ -264,3 +264,67 @@ exports.generateNotifications = async function generateNotifications(sow_id, sta
     console.error("Error generating notifications:", err.message);
   }
 };
+
+exports.updateNotificationNumberForAllSOWs = async (req, res) => {
+  try {
+    const { notification_number } = req.body;
+    if (![1, 2, 3, 4, 5].includes(Number(notification_number))) {
+      return res.status(400).json({ error: "Invalid notification number" });
+    }
+
+    db.query("SELECT sow_id, end_date FROM sow", async (err, sows) => {
+      if (err) {
+        console.error("Error fetching SOWs:", err);
+        return res.status(500).json({ error: "Failed to fetch SOWs" });
+      }
+
+      const today = moment().startOf('day');
+
+      for (const sow of sows) {
+        const { sow_id, end_date } = sow;
+        // Only update if end_date is today or in the future
+        if (moment(end_date).isSameOrAfter(today, 'day')) {
+          let newDate;
+          switch (Number(notification_number)) {
+            case 1:
+              newDate = moment(end_date).subtract(1, 'month').format("YYYY-MM-DD");
+              break;
+            case 2:
+              newDate = moment(end_date).subtract(1, 'month').add(3, 'days').format("YYYY-MM-DD");
+              break;
+            case 3:
+              newDate = moment(end_date).subtract(1, 'month').add(3, 'days').add(5, 'days').format("YYYY-MM-DD");
+              break;
+            case 4:
+              newDate = moment(end_date).subtract(1, 'month').add(3, 'days').add(5, 'days').add(1, 'week').format("YYYY-MM-DD");
+              break;
+            case 5:
+              newDate = moment(end_date).subtract(1, 'month').add(3, 'days').add(5, 'days').add(1, 'week').add(1, 'week').format("YYYY-MM-DD");
+              break;
+          }
+
+          await new Promise((resolve, reject) => {
+            db.query(
+              "UPDATE notifications SET notification_date = ? WHERE sow_id = ? AND notification_number = ?",
+              [newDate, sow_id, notification_number],
+              (err) => {
+                if (err) {
+                  console.error(`Error updating notification for SOW ${sow_id}, number ${notification_number}:`, err);
+                  reject(err);
+                } else {
+                  resolve();
+                  // console.log(`Updated notification for SOW ${sow_id}, number ${notification_number} to date ${newDate}`)
+                }
+              }
+            );
+          });
+        }
+      }
+
+      res.json({ message: `All SOWs' notification number ${notification_number} dates updated for future end dates only.` });
+    });
+  } catch (err) {
+    console.error("Error updating notifications:", err);
+    res.status(500).json({ error: "Failed to update notifications" });
+  }
+};
