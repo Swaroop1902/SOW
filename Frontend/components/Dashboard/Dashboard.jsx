@@ -780,6 +780,7 @@ import React, { useState, useEffect } from "react";
 import UploadSOW from "./UploadSOW";
 import AddNewUser from "./AddNewUser";
 import EditSOWForm from "./EditSOWForm";
+import NotificationSettings from "./NotificationSettings";
 import styles from "./Dashboard.module.css";
 import axios from "axios";
 import { ChevronDown, ChevronUp, Loader2 } from "lucide-react";
@@ -793,6 +794,7 @@ const Dashboard = () => {
   const [isSlideoutOpen, setSlideoutOpen] = useState(false);
   const [isHamburgerOpen, setHamburgerOpen] = useState(false);
   const [isAddUserModalOpen, setAddUserModalOpen] = useState(false);
+  const [showNotificationSettings, setShowNotificationSettings] = useState(false);
   const [dashboardData, setDashboardData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -1121,15 +1123,14 @@ const Dashboard = () => {
       >
         👤 Add New User
       </li>
-      <li
-        onClick={() => {
-          // TODO: Open notification settings modal or page
-          alert("Notification settings coming soon!");
-          setHamburgerOpen(false);
-        }}
-      >
-        🛎️ Notification Settings
-      </li>
+     <li
+  onClick={() => {
+    setShowNotificationSettings(true);
+    setHamburgerOpen(false);
+  }}
+>
+  🛎️ Notification Settings
+</li>
     </>
   )}
   <li onClick={handleLogout}>🚪 Logout</li>
@@ -1452,6 +1453,9 @@ const Dashboard = () => {
           userRole={userInfo.role}
         />
       )}
+      {showNotificationSettings && (
+  <NotificationSettings onClose={() => setShowNotificationSettings(false)} />
+)}
     </div>
   );
 };
