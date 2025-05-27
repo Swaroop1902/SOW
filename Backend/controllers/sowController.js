@@ -346,3 +346,100 @@ WHERE sow_id = ?
     res.status(200).json(results)
   })
 }
+
+
+// Update SOW by ID (for Edit SOW functionality)
+// exports.updateSOW = (req, res) => {
+//   const { sow_id } = req.params;
+//   const {
+//     project_name,
+//     Start_date,
+//     end_date,
+//     delivery_unit,
+//     // delivery_head, // Not stored in SOW table, but included for completeness
+//     delivery_manager,
+//     Status,
+//   } = req.body;
+
+//   // Map Status string to status integer (1: Active, 2: About-End, 0: In-active)
+//   let statusInt = 0;
+//   if (Status === "Active") statusInt = 1;
+//   else if (Status === "About-End") statusInt = 2;
+
+//   const query = `
+//     UPDATE sow
+//     SET project_name = ?, Start_date = ?, end_date = ?, delivery_unit = ?, delivery_manager = ?, status = ?
+//     WHERE sow_id = ?
+//   `;
+
+//   const params = [
+//     project_name,
+//     Start_date,
+//     end_date,
+//     delivery_unit,
+//     delivery_manager,
+//     statusInt,
+//     sow_id,
+//   ];
+
+//   // Note: delivery_head is not updated here because it's usually derived from users table
+
+//   db.query(query, params, (err, result) => {
+//     if (err) {
+//       console.error("Error updating SOW:", err);
+//       return res.status(500).json({ error: "Failed to update SOW" });
+//     }
+//     res.json({ message: "SOW updated successfully" });
+//   });
+// };
+exports.updateSOW = (req, res) => {
+  const sow_id = req.params.sowId;
+  const {
+    project_name,
+    Start_date,
+    end_date,
+    delivery_unit,
+    delivery_manager,
+    Status,
+  } = req.body;
+
+  let statusInt = 0;
+  if (Status === "Active") statusInt = 1;
+  else if (Status === "About-End") statusInt = 2;
+
+  // Convert to MySQL date format
+  const mysqlStartDate = toMysqlDate(Start_date);
+  const mysqlEndDate = toMysqlDate(end_date);
+
+  const query = `
+    UPDATE sow
+    SET project_name = ?, Start_date = ?, end_date = ?, delivery_unit = ?, delivery_manager = ?, status = ?
+    WHERE sow_id = ?
+  `;
+
+  const params = [
+    project_name,
+    mysqlStartDate,
+    mysqlEndDate,
+    delivery_unit,
+    delivery_manager,
+    statusInt,
+    sow_id,
+  ];
+
+  db.query(query, params, (err, result) => {
+    if (err) {
+      console.error("Error updating SOW:", err);
+      return res.status(500).json({ error: "Failed to update SOW" });
+    }
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "No SOW found with that ID" });
+    }
+    res.json({ message: "SOW updated successfully" });
+  });
+};
+
+function toMysqlDate(dateString) {
+  if (!dateString) return null;
+  return dateString.slice(0, 10);
+}
