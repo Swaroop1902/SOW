@@ -1219,7 +1219,7 @@ const Dashboard = () => {
                   </span>
                 )}
               </th>
-              <th>Notifications</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>

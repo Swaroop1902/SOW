@@ -265,11 +265,19 @@ exports.generateNotifications = async function generateNotifications(sow_id, sta
   }
 };
 
-exports.updateNotificationNumberForAllSOWs = async (req, res) => {
+
+
+exports.updateAllNotificationDaysForAllSOWs = async (req, res) => {
   try {
-    const { notification_number } = req.body;
-    if (![1, 2, 3, 4, 5].includes(Number(notification_number))) {
-      return res.status(400).json({ error: "Invalid notification number" });
+    const { reminderDays } = req.body;
+    // reminderDays should be an object like: { "1": 30, "2": 27, ... }
+
+    if (
+      !reminderDays ||
+      typeof reminderDays !== "object" ||
+      ![1,2,3,4,5].every(num => reminderDays[num] && Number.isInteger(reminderDays[num]))
+    ) {
+      return res.status(400).json({ error: "Invalid reminderDays object" });
     }
 
     db.query("SELECT sow_id, end_date FROM sow", async (err, sows) => {
@@ -278,50 +286,37 @@ exports.updateNotificationNumberForAllSOWs = async (req, res) => {
         return res.status(500).json({ error: "Failed to fetch SOWs" });
       }
 
-      const today = moment().startOf('day');
+      const today = require("moment")().startOf('day');
+      const moment = require("moment");
 
       for (const sow of sows) {
         const { sow_id, end_date } = sow;
-        // Only update if end_date is today or in the future
         if (moment(end_date).isSameOrAfter(today, 'day')) {
-          let newDate;
-          switch (Number(notification_number)) {
-            case 1:
-              newDate = moment(end_date).subtract(1, 'month').format("YYYY-MM-DD");
-              break;
-            case 2:
-              newDate = moment(end_date).subtract(1, 'month').add(3, 'days').format("YYYY-MM-DD");
-              break;
-            case 3:
-              newDate = moment(end_date).subtract(1, 'month').add(3, 'days').add(5, 'days').format("YYYY-MM-DD");
-              break;
-            case 4:
-              newDate = moment(end_date).subtract(1, 'month').add(3, 'days').add(5, 'days').add(1, 'week').format("YYYY-MM-DD");
-              break;
-            case 5:
-              newDate = moment(end_date).subtract(1, 'month').add(3, 'days').add(5, 'days').add(1, 'week').add(1, 'week').format("YYYY-MM-DD");
-              break;
-          }
-
-          await new Promise((resolve, reject) => {
-            db.query(
-              "UPDATE notifications SET notification_date = ? WHERE sow_id = ? AND notification_number = ?",
-              [newDate, sow_id, notification_number],
-              (err) => {
-                if (err) {
-                  console.error(`Error updating notification for SOW ${sow_id}, number ${notification_number}:`, err);
-                  reject(err);
-                } else {
-                  resolve();
-                  // console.log(`Updated notification for SOW ${sow_id}, number ${notification_number} to date ${newDate}`)
+          // Calculate each reminder's date based on the custom days
+          let baseDate = moment(end_date);
+          let prevDate = baseDate.clone();
+          for (let i = 1; i <= 5; i++) {
+            let daysBefore = reminderDays[i];
+            let reminderDate = baseDate.clone().subtract(daysBefore, 'days').format("YYYY-MM-DD");
+            await new Promise((resolve, reject) => {
+              db.query(
+                "UPDATE notifications SET notification_date = ? WHERE sow_id = ? AND notification_number = ?",
+                [reminderDate, sow_id, i],
+                (err) => {
+                  if (err) {
+                    console.error(`Error updating notification for SOW ${sow_id}, number ${i}:`, err);
+                    reject(err);
+                  } else {
+                    resolve();
+                  }
                 }
-              }
-            );
-          });
+              );
+            });
+          }
         }
       }
 
-      res.json({ message: `All SOWs' notification number ${notification_number} dates updated for future end dates only.` });
+      res.json({ message: "All SOWs' notification dates updated with custom days for each reminder." });
     });
   } catch (err) {
     console.error("Error updating notifications:", err);

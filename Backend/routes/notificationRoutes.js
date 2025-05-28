@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const { getNotificationsBySOW , updateNotificationNumberForAllSOWs } = require("../controllers/notificationController");
+const { getNotificationsBySOW , updateAllNotificationDaysForAllSOWs } = require("../controllers/notificationController");
 
 router.get("/notifications/:sowId", getNotificationsBySOW);
 
-router.put("/notifications/update", updateNotificationNumberForAllSOWs);
+router.put("/notifications/updateAllDays", updateAllNotificationDaysForAllSOWs);
 
 module.exports = router;
