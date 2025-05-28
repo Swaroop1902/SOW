@@ -1,4 +1,4 @@
-.overlay {
+/* .overlay {
   position: fixed;
   top: 0; left: 0; width: 100vw; height: 100vh;
   background: rgba(30,30,30,0.3);
@@ -73,4 +73,230 @@
   margin-top: 1rem;
   color: green;
   font-weight: 500;
+} */
+/* 
+.reminderList {
+  margin: 1.5rem 0 1rem 0;
+}
+.reminderRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.reminderLabel {
+  width: 110px;
+  font-weight: 500;
+}
+.daysDropdown {
+  margin: 0 0.7rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+.beforeText {
+  color: #444;
+  font-size: 1rem;
+}
+.buttonRow {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.saveBtn {
+  background: #007bff;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.cancelBtn {
+  background: #eee;
+  color: #333;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.errorMsg {
+  color: #d32f2f;
+  margin-bottom: 1rem;
+  font-weight: 500;
+} */
+
+.overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(30, 30, 30, 0.45);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal {
+  background: #fff;
+  padding: 2rem 2.5rem;
+  border-radius: 14px;
+  min-width: 320px;
+  max-width: 95vw;
+  width: 400px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.22);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  animation: popup-fadein 0.25s;
+}
+
+@keyframes popup-fadein {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.closeBtn {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #888;
+  transition: color 0.2s;
+}
+.closeBtn:hover {
+  color: #007bff;
+}
+
+.modalTitle {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #222;
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+.reminderList {
+  margin: 0 0 1.2rem 0;
+}
+
+.reminderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.1rem;
+  background: #f7faff;
+  padding: 0.7rem 1rem;
+  border-radius: 7px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+}
+
+.reminderLabel {
+  width: 130px;
+  font-weight: 500;
+  color: #1a237e;
+  font-size: 1rem;
+}
+
+.daysDropdown {
+  margin: 0 0.7rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 5px;
+  border: 1px solid #b0bec5;
+  font-size: 1rem;
+  background: #fff;
+  min-width: 60px;
+}
+
+.beforeText {
+  color: #444;
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+.buttonRow {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.2rem;
+}
+
+.saveBtn {
+  background: #007bff;
+  color: #fff;
+  border: none;
+  padding: 0.55rem 1.4rem;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+.saveBtn:disabled {
+  background: #b3d1ff;
+  cursor: not-allowed;
+}
+
+.cancelBtn {
+  background: #eee;
+  color: #333;
+  border: none;
+  padding: 0.55rem 1.4rem;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+.cancelBtn:hover {
+  background: #e0e0e0;
+}
+
+.successMsg {
+  color: #388e3c;
+  margin-top: 1rem;
+  text-align: center;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.errorMsg {
+  color: #d32f2f;
+  margin-bottom: 1rem;
+  text-align: center;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+@media (max-width: 600px) {
+  .modal {
+    min-width: 0;
+    width: 98vw;
+    padding: 1rem 0.5rem;
+    border-radius: 8px;
+  }
+  .reminderRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+    padding: 0.6rem 0.5rem;
+  }
+  .reminderLabel {
+    width: auto;
+    font-size: 0.98rem;
+  }
+  .beforeText {
+    font-size: 0.98rem;
+  }
+  .saveBtn, .cancelBtn {
+    font-size: 0.98rem;
+    padding: 0.45rem 1rem;
+  }
 }
