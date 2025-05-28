@@ -224,6 +224,9 @@ exports.uploadAddendum = async (req, res) => {
         return res.status(500).json({ error: "Failed to insert addendum into DB." });
       }
 
+      const addendumId = result.insertId;
+generateNotifications(sowId, startDate, endDate);
+
       res.json({
         message: "Addendum uploaded successfully.",
         addendumId: result.insertId,
