@@ -452,6 +452,7 @@ const pdf = require('pdf-parse');
 const mysql = require('mysql2/promise');
 const fs = require('fs');
 const path = require('path');
+const { generateNotifications } = require('./notificationController'); // Adjust path if needed
 
 
 
@@ -599,6 +600,7 @@ async function downloadAndProcessPDF(file, db) {
 
     // Insert the new SOW into the database
     try {
+      /*
       await db.execute(
         `INSERT INTO sow (
           project_name, start_date, stakeholders, end_date, delivery_manager, status, delivery_unit, uploaded_by, file_name, status_detail
@@ -616,6 +618,28 @@ async function downloadAndProcessPDF(file, db) {
           statusDetail
         ]
       );
+      */
+     const [insertResult] = await db.execute(
+  `INSERT INTO sow (
+    project_name, start_date, stakeholders, end_date, delivery_manager, status, delivery_unit, uploaded_by, file_name, status_detail
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+  [
+    projectName,
+    startDate,
+    stakeholders,
+    endDate,
+    deliveryManager,
+    1, // status: 1 for active
+    deliveryUnit,
+    uploadedBy,
+    file.name,
+    statusDetail
+  ]
+);
+const sowId = insertResult.insertId;
+
+// Generate notifications for this SOW
+await generateNotifications(sowId, startDate, endDate);
       const msg = `✅ Inserted: ${file.name}`;
       console.log(msg);
       writeLog(`Inserted: ${file.name}`);
