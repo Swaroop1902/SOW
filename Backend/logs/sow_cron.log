@@ -1,0 +1,18 @@
+[2025-05-29T06:27:02.819Z] Job started: importSOWs
+[2025-05-29T06:27:04.569Z] Skipping duplicate: sample2.pdf
+[2025-05-29T06:27:05.447Z] Inserted: Ethiciti - Statement of Work_FB_Website.pdf
+[2025-05-29T06:27:05.451Z] Skipping duplicate: sample.pdf
+[2025-05-29T06:27:05.456Z] Skipping duplicate: Shareable_Employ-Harbinger Fixed Price SOW for Workato implementation.pdf
+[2025-05-29T06:27:05.468Z] Done importing SOW PDF data into database
+[2025-05-29T06:56:41.398Z] Job started: importSOWs
+[2025-05-29T06:56:44.407Z] Skipping duplicate: sample2.pdf
+[2025-05-29T06:56:45.603Z] Inserted: Ethiciti - Statement of Work_FB_Website.pdf
+[2025-05-29T06:56:45.607Z] Skipping duplicate: sample.pdf
+[2025-05-29T06:56:45.609Z] Skipping duplicate: Shareable_Employ-Harbinger Fixed Price SOW for Workato implementation.pdf
+[2025-05-29T06:56:45.624Z] Done importing SOW PDF data into database
+[2025-05-29T06:57:30.379Z] Job started: importSOWs
+[2025-05-29T06:57:32.120Z] Skipping duplicate: sample2.pdf
+[2025-05-29T06:57:32.124Z] Skipping duplicate: Ethiciti - Statement of Work_FB_Website.pdf
+[2025-05-29T06:57:32.129Z] Skipping duplicate: sample.pdf
+[2025-05-29T06:57:32.133Z] Skipping duplicate: Shareable_Employ-Harbinger Fixed Price SOW for Workato implementation.pdf
+[2025-05-29T06:57:32.158Z] Done importing SOW PDF data into database

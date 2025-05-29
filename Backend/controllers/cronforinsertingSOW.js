@@ -523,8 +523,10 @@ function extractDates(text) {
   const formatDate = (str) => {
     if (!str) return null;
     // Try "April 1, 2025"
-    let date = new Date(str);
-    if (!isNaN(date)) return date.toISOString().split('T')[0];
+    // let date = new Date(str);
+    // if (!isNaN(date)) return date.toISOString().split('T')[0];
+    let date = new Date(str + " UTC");
+if (!isNaN(date)) return date.toISOString().split('T')[0];
     // Try "04 11, 2025"
     const alt = str.match(/([0-9]{2}) ([0-9]{2}), ([0-9]{4})/);
     if (alt) {
