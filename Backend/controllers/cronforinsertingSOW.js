@@ -456,6 +456,7 @@ const { generateNotifications } = require('./notificationController'); // Adjust
 
 
 
+
 // MySQL DB Config
 const dbConfig = {
   host: 'localhost',
