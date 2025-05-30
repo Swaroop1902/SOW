@@ -1277,6 +1277,7 @@ const Dashboard = () => {
                           {row.Status || "Unknown"}
                         </span>
                       </td>
+                      {/*
                       <td>
                         <span
                           role="button"
@@ -1293,6 +1294,27 @@ const Dashboard = () => {
                           ✏️
                         </span>
                       </td>
+                      */}
+                      <td>
+  <span style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+    <span
+      role="button"
+      onClick={() => handleShowNotifications(row.sow_id)}
+      title="Show Notifications"
+      style={{ cursor: "pointer" }}
+    >
+      🔔
+    </span>
+    <span
+      role="button"
+      onClick={() => handleEditSOW(row.sow_id)}
+      title="Edit SOW"
+      style={{ cursor: "pointer" }}
+    >
+      ✏️
+    </span>
+  </span>
+</td>
                     </tr>
                     {expandedRow === index && (
                       <tr>
