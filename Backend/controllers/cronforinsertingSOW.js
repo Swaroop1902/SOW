@@ -7,12 +7,13 @@
 // const { generateNotifications } = require('./notificationController'); // Adjust path if needed
 
 
-// const TENANT_ID = '';
-// const CLIENT_ID = '';
-// const CLIENT_SECRET = '';
-// const SITE_DOMAIN = 'harbingertechventures.sharepoint.com';
-// const SITE_NAME = 'IntegratedApps';
-// const FOLDER_PATH = 'SOW Tracker/SOW';
+// const TENANT_ID = process.env.TENANT_ID;
+// const CLIENT_ID = process.env.CLIENT_ID;
+// const CLIENT_SECRET = process.env.CLIENT_SECRET;
+// const SITE_DOMAIN = process.env.SITE_DOMAIN;
+// const SITE_NAME = process.env.SITE_NAME;
+// const FOLDER_PATH = process.env.FOLDER_PATH;
+
 
 // // MySQL DB Config
 // const dbConfig = {
@@ -341,7 +342,7 @@
 // module.exports = { importSOWs };
 
 
-
+require('dotenv').config();
 const axios = require('axios');
 const qs = require('qs');
 const pdf = require('pdf-parse');
@@ -351,14 +352,19 @@ const path = require('path');
 const { generateNotifications } = require('./notificationController'); // Adjust path if needed
 
 // Replace with your actual credentials and OneDrive user
+const TENANT_ID = process.env.TENANT_ID;
+const CLIENT_ID = process.env.CLIENT_ID;
+const CLIENT_SECRET = process.env.CLIENT_SECRET;
+const USER_ID_OR_EMAIL = process.env.USER_ID_OR_EMAIL;
+const FOLDER_NAME = process.env.FOLDER_NAME;
 
 
 // MySQL DB config
 const dbConfig = {
-  host: 'localhost',
-  user: 'root',
-  password: 'Test_1234',
-  database: 'sowapplicationdb'
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_NAME
 };
 
 function writeLog(message) {

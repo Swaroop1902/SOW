@@ -11,3 +11,10 @@
 [2025-06-03T15:15:30.389Z] Skipping duplicate: Shareable_Employ-Harbinger Fixed Price SOW for Workato implementation.pdf
 [2025-06-03T15:15:30.393Z] Skipping duplicate: Sw.pdf
 [2025-06-03T15:15:30.408Z] ✅ Completed OneDrive SOW import
+[2025-06-04T15:34:21.975Z] ❌ Error: Request failed with status code 401
+[2025-06-04T15:35:10.618Z] Skipping duplicate: Shareable_Employ-Harbinger Fixed Price SOW for Workato implementation.pdf
+[2025-06-04T15:35:11.200Z] Inserted: Sw.pdf
+[2025-06-04T15:35:11.215Z] ✅ Completed OneDrive SOW import
+[2025-06-04T15:40:18.670Z] Skipping duplicate: Shareable_Employ-Harbinger Fixed Price SOW for Workato implementation.pdf
+[2025-06-04T15:40:18.675Z] Skipping duplicate: Sw.pdf
+[2025-06-04T15:40:18.707Z] ✅ Completed OneDrive SOW import
