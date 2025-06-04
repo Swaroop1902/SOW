@@ -26,7 +26,7 @@
 // // // //     setLoading(true);
 // // // //     try {
 // // // //       await axios.put(
-// // // //         "http://localhost:5000/api/notifications/update",
+// // // //         "${API_URL}/api/notifications/update",
 // // // //         { notification_number: selected }
 // // // //       );
 // // // //       setSuccessMsg("Notification setting updated successfully!");
@@ -180,7 +180,7 @@
 // //     setSuccessMsg("");
 // //     try {
 // //       await axios.put(
-// //         "http://localhost:5000/api/notifications/updateAllDays",
+// //         "${API_URL}/api/notifications/updateAllDays",
 // //         { reminderDays }
 // //       );
 // //       setSuccessMsg("Notification settings updated successfully!");
@@ -279,7 +279,7 @@
 //     setLoading(true);
 //     try {
 //       await axios.put(
-//         "http://localhost:5000/api/notifications/updateAllDays",
+//         "${API_URL}/api/notifications/updateAllDays",
 //         { reminderDays }
 //       );
 //       setSuccessMsg("Notification settings updated successfully!");
@@ -333,6 +333,8 @@ import React, { useState } from "react";
 import axios from "axios";
 import styles from "./NotificationSettings.module.css";
 
+const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 const REMINDER_OPTIONS = [
   { number: 1, label: "First Reminder" },
   { number: 2, label: "Second Reminder" },
@@ -377,7 +379,7 @@ const NotificationSettings = ({ onClose }) => {
     setLoading(true);
     try {
       await axios.put(
-        "http://localhost:5000/api/notifications/updateAllDays",
+        `${API_URL}/api/notifications/updateAllDays`,
         { reminderDays }
       );
       setSuccessMsg("Notification settings updated successfully!");

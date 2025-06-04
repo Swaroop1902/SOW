@@ -4,6 +4,9 @@ import axios from 'axios';
 import styles from './Login.module.css'; // Adjust the path as necessary
 import { useRouter } from 'next/navigation';
 
+const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+console.log('API_URL:', API_URL); // Debugging line to check API_URL
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -15,7 +18,7 @@ const Login = () => {
   //   setErrorMessage('');
 
   //   try {
-  //     const response = await axios.post('http://localhost:5000/api/login', {
+  //     const response = await axios.post(`${API_URL}/api/login`, {
   //       email,
   //       password,
   //     });
@@ -35,7 +38,7 @@ const Login = () => {
     setErrorMessage('');
   
     try {
-      const response = await axios.post('http://localhost:5000/api/login', {
+      const response = await axios.post(`${API_URL}/api/login`, {
         email,
         password,
       });

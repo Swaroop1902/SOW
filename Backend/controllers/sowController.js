@@ -7,7 +7,7 @@ const { generateNotifications } = require('../controllers/notificationController
 
 exports.uploadSOW = async (req, res) => {
   try {
-    const { projectName, deliveryUnit, stakeholders, deliveryManager } = req.body;
+    const { projectName, deliveryUnit, stakeholders, deliveryManager ,uploaded_by } = req.body;
     let sowId = 0;
 
     // Validate required fields
@@ -51,7 +51,7 @@ exports.uploadSOW = async (req, res) => {
       startDate,
       endDate,
       deliveryUnit,
-      1, // uploaded_by (replace with actual user ID)
+      uploaded_by, // uploaded_by (replace with actual user ID)
       stakeholders,
       req.file.originalname,
       deliveryManager,

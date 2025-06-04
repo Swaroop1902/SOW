@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import styles from './AddNewUser.module.css';
 
+const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 const AddNewUser = ({ onClose }) => {
   const [formData, setFormData] = useState({
     firstName: '',
@@ -17,7 +19,7 @@ const AddNewUser = ({ onClose }) => {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/delivery-units')
+    fetch(`${API_URL}/api/delivery-units`)
       .then((res) => res.json())
       .then((data) => setDeliveryUnits(data))
       .catch((err) => console.error('Error fetching delivery units:', err));
@@ -45,7 +47,7 @@ const AddNewUser = ({ onClose }) => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/users', {
+      const response = await fetch(`${API_URL}/api/users`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

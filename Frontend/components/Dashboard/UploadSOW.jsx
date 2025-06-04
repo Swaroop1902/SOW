@@ -3,7 +3,9 @@
 import React, { useState, useEffect } from "react";
 import styles from "./UploadSOW.module.css";
 
-const UploadSOW = ({ onClose }) => {
+const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+const UploadSOW = ({ onClose ,userInfo }) => {
   const [file, setFile] = useState(null);
   const [projectId, setProjectId] = useState("");
   const [projectName, setProjectName] = useState("");
@@ -23,8 +25,8 @@ const UploadSOW = ({ onClose }) => {
     const fetchData = async () => {
       try {
         const [dmRes, sowRes] = await Promise.all([
-          fetch("http://localhost:5000/api/DeliveryManager"),
-          fetch("http://localhost:5000/api/sows"),
+          fetch(`${API_URL}/api/DeliveryManager`),
+          fetch(`${API_URL}/api/sows`),
         ]);
         const dmData = await dmRes.json();
         const sowData = await sowRes.json();
@@ -44,7 +46,7 @@ const UploadSOW = ({ onClose }) => {
       if (!projectId) return; // Do not fetch if no project is selected
 
       try {
-        const res = await fetch(`http://localhost:5000/api/GetFullSowDetails/${projectId}`);
+        const res = await fetch(`${API_URL}/api/GetFullSowDetails/${projectId}`);
         const data = await res.json();
 
         if (res.ok) {
@@ -121,19 +123,20 @@ const UploadSOW = ({ onClose }) => {
     formData.append("deliveryUnit", deliveryUnit);
     formData.append("deliveryManager", deliveryManager);
     formData.append("type", formType);
+    formData.append("uploaded_by", userInfo?.email || "Unknown");
 
     let endpoint = "";
 
     if (formType === "SOW") {
       formData.append("projectName", projectName);
-      endpoint = "http://localhost:5000/api/upload";
+      endpoint = `${API_URL}/api/upload`;
     } else {
       formData.append("sowId", projectId);
       formData.append("addendumType", addendumType); // <-- Add this line
       endpoint =
         addendumType === "Change Request"
-          ? "http://localhost:5000/api/uploadAddendum"
-          : "http://localhost:5000/api/uploadAddendum";
+          ? `${API_URL}/api/uploadAddendum`
+          : `${API_URL}/api/uploadAddendum`;
     }
 
     try {

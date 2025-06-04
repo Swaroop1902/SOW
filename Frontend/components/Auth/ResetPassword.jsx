@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import styles from "./ResetPassword.module.css";
 
+const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 const ResetPassword = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -27,7 +29,7 @@ const ResetPassword = () => {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/reset-password", {
+      const response = await fetch(`${API_URL}/api/reset-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token, password }),

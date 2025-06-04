@@ -22,7 +22,7 @@
 // //       const token = localStorage.getItem("token");
 // //       console.log("Calling API with:", formData); // Debug: API call about to happen
 // //       await axios.put(
-// //         `http://localhost:5000/api/updateSOW/${formData.sow_id}`,
+// //         `${API_URL}/api/updateSOW/${formData.sow_id}`,
 // //         formData
 // //       );
 // //       setLoading(false);
@@ -147,7 +147,7 @@
 //     try {
 //       const token = localStorage.getItem("token");
 //       await axios.put(
-//         `http://localhost:5000/api/updateSOW/${formData.sow_id}`,
+//         `${API_URL}/api/updateSOW/${formData.sow_id}`,
 //         formData,
 //         { headers: { Authorization: `Bearer ${token}` } }
 //       );
@@ -299,6 +299,8 @@ import React, { useState, useEffect } from "react";
 import styles from "./EditSOWForm.module.css";
 import axios from "axios";
 
+const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 const EditSOWForm = ({ sowData, onClose, onSuccess, userRole }) => {
   const [formData, setFormData] = useState({ ...sowData });
   const [loading, setLoading] = useState(false);
@@ -309,7 +311,7 @@ const EditSOWForm = ({ sowData, onClose, onSuccess, userRole }) => {
     // Fetch Delivery Managers from API
     const fetchManagers = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/DeliveryManager");
+        const res = await axios.get(`${API_URL}/api/DeliveryManager`);
         setManagers(res.data || []);
       } catch (err) {
         setManagers([]);
@@ -335,7 +337,7 @@ const EditSOWForm = ({ sowData, onClose, onSuccess, userRole }) => {
     try {
       const token = localStorage.getItem("token");
       await axios.put(
-        `http://localhost:5000/api/updateSOW/${formData.sow_id}`,
+        `${API_URL}/api/updateSOW/${formData.sow_id}`,
         formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );

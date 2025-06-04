@@ -95,7 +95,7 @@
 //     }
 
 //     try {
-//       const response = await axios.get("http://localhost:5000/api/get-role", {
+//       const response = await axios.get("${API_URL}/api/get-role", {
 //         headers: { Authorization: `Bearer ${token}` },
 //       });
 
@@ -121,13 +121,13 @@
 //       // Determine the appropriate API endpoint based on role
 //       switch (role) {
 //         case "Admin":
-//           endpoint = "http://localhost:5000/api/dashboard";
+//           endpoint = "${API_URL}/api/dashboard";
 //           break;
 //         case "Delivery Head":
-//           endpoint = "http://localhost:5000/api/dashboard/delivery-head";
+//           endpoint = "${API_URL}/api/dashboard/delivery-head";
 //           break;
 //         case "Delivery Manager":
-//           endpoint = "http://localhost:5000/api/dashboard/delivery-manager";
+//           endpoint = "${API_URL}/api/dashboard/delivery-manager";
 //           break;
 //         default:
 //           setError("Invalid user role. Please contact an administrator.");
@@ -150,7 +150,7 @@
 //           if (row.sow_id) {
 //             try {
 //               const addendumResponse = await axios.get(
-//                 `http://localhost:5000/api/getAddendumsBySowId/${row.sow_id}`,
+//                 `${API_URL}/api/getAddendumsBySowId/${row.sow_id}`,
 //                 {
 //                   headers: { Authorization: `Bearer ${token}` },
 //                 }
@@ -206,7 +206,7 @@
 
 //     try {
 //       const response = await axios.get(
-//         "http://localhost:5000/api/verify-token",
+//         "${API_URL}/api/verify-token",
 //         {
 //           headers: { Authorization: `Bearer ${token}` },
 //         }
@@ -241,7 +241,7 @@
 //     try {
 //       const token = localStorage.getItem("token");
 //       const response = await axios.get(
-//         `http://localhost:5000/api/notifications/${sowId}`,
+//         `${API_URL}/api/notifications/${sowId}`,
 //         {
 //           headers: { Authorization: `Bearer ${token}` },
 //         }
@@ -260,7 +260,7 @@
 //   try {
 //     const token = localStorage.getItem("token");
 //     const response = await axios.get(
-//       `http://localhost:5000/api/notifications/${sowId}`,
+//       `${API_URL}/api/notifications/${sowId}`,
 //       {
 //         headers: { Authorization: `Bearer ${token}` },
 //       }
@@ -291,7 +291,7 @@
 //       try {
 //         const token = localStorage.getItem("token");
 //         const response = await axios.get(
-//           `http://localhost:5000/api/getAddendumsBySowId/${sowId}`,
+//           `${API_URL}/api/getAddendumsBySowId/${sowId}`,
 //           {
 //             headers: { Authorization: `Bearer ${token}` },
 //           }
@@ -785,6 +785,8 @@ import styles from "./Dashboard.module.css";
 import axios from "axios";
 import { ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 
+const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
 const handleLogout = () => {
   localStorage.removeItem("token");
   window.location.href = "/login";
@@ -873,13 +875,13 @@ const Dashboard = () => {
       let endpoint = "";
       switch (role) {
         case "Admin":
-          endpoint = "http://localhost:5000/api/dashboard";
+          endpoint = `${API_URL}/api/dashboard`;
           break;
         case "Delivery Head":
-          endpoint = "http://localhost:5000/api/dashboard/delivery-head";
+          endpoint = `${API_URL}/api/dashboard/delivery-head`;
           break;
         case "Delivery Manager":
-          endpoint = "http://localhost:5000/api/dashboard/delivery-manager";
+          endpoint = `${API_URL}/api/dashboard/delivery-manager`;
           break;
         default:
           setError("Invalid user role. Please contact an administrator.");
@@ -899,7 +901,7 @@ const Dashboard = () => {
           if (row.sow_id) {
             try {
               const addendumResponse = await axios.get(
-                `http://localhost:5000/api/getAddendumsBySowId/${row.sow_id}`,
+                `${API_URL}/api/getAddendumsBySowId/${row.sow_id}`,
                 {
                   headers: { Authorization: `Bearer ${token}` },
                 }
@@ -941,7 +943,7 @@ const Dashboard = () => {
 
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/verify-token",
+        `${API_URL}/api/verify-token`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -969,7 +971,7 @@ const Dashboard = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get(
-        `http://localhost:5000/api/notifications/${sowId}`,
+        `${API_URL}/api/notifications/${sowId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -998,7 +1000,7 @@ const Dashboard = () => {
       try {
         const token = localStorage.getItem("token");
         const response = await axios.get(
-          `http://localhost:5000/api/getAddendumsBySowId/${sowId}`,
+          `${API_URL}/api/getAddendumsBySowId/${sowId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -1421,11 +1423,10 @@ const Dashboard = () => {
       </div>
 
       {isSlideoutOpen && (
-        <div className={styles.slideoutPanel}>
-          <UploadSOW onClose={() => setSlideoutOpen(false)} />
-        </div>
-      )}
-
+  <div className={styles.slideoutPanel}>
+    <UploadSOW onClose={() => setSlideoutOpen(false)} userInfo={userInfo} />
+  </div>
+)}
       {isAddUserModalOpen && (
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
