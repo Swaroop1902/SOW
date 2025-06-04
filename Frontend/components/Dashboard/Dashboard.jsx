@@ -1064,10 +1064,17 @@ const Dashboard = () => {
           ☰
         </div>
         <h1>SOW Information</h1>
-        <div className={styles.userInfo}>
+        {/* <div className={styles.userInfo}>
           <span className={styles.userRole}>{userInfo.role}</span>
           <span className={styles.userName}>{userInfo.name}</span>
-        </div>
+        </div> */}
+
+        <div className={styles.userInfo}>
+  <span>
+    <strong>{userInfo.role}:</strong> {userInfo.name}
+  </span>
+</div>
+
         <div className={styles.searchContainer}>
           <input
             type="text"
@@ -1219,7 +1226,7 @@ const Dashboard = () => {
                   </span>
                 )}
               </th>
-              <th></th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
