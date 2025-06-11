@@ -35,7 +35,7 @@ app.use("/api", dashboardRoutes);
 
 //Cron for triggering notifications at 9 AM every day
 cron.schedule("0 9 * * *", () => {
-  sendNotifications();
+  // sendNotifications();
   console.log("Scheduled notification sent at 9 AM");
 });
 

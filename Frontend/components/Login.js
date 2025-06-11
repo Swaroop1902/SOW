@@ -13,26 +13,6 @@ const Login = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const router = useRouter();
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   setErrorMessage('');
-
-  //   try {
-  //     const response = await axios.post(`${API_URL}/api/login`, {
-  //       email,
-  //       password,
-  //     });
-
-  //     if (response.data.success) {
-  //       router.push('/dashboard');
-  //     } else {
-  //       setErrorMessage('Invalid email or password.');
-  //     }
-  //   } catch (error) {
-  //     console.error('Error during login:', error);
-  //     setErrorMessage('An error occurred. Please try again later.');
-  //   }
-  // };
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');

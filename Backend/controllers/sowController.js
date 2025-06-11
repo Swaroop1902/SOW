@@ -95,79 +95,8 @@ exports.uploadSOW = async (req, res) => {
   }
 };
 
-/*
-exports.uploadAddendum = async (req, res) => {
-  try {
-    const {
-      sowId,
-      deliveryUnit,
-      stakeholders,
-      deliveryManager,
-      
-    } = req.body;
+// Upload Addendum
 
-    if (!sowId) {
-      return res.status(400).json({ error: "sowId is required." });
-    }
-
-    const filePath = req.file?.path;
-    if (!filePath) {
-      return res.status(400).json({ error: "PDF file is required." });
-    }
-
-    // Extract dates from PDF
-    const { startDate, endDate } = await extractDatesFromPDF(filePath);
-
-    // Prepare insert query
-    const query = `
-      INSERT INTO Addendum (
-        sow_id, file_name, uploaded_by, start_date, end_date,
-        delivery_unit, stakeholders, delivery_manager,  upload_date
-      )
-      VALUES (?, ?, ?, ?, ?, ?, ?,  ?, NOW())
-    `;
-
-    const params = [
-      sowId,
-      req.file.originalname,
-      1, // uploaded_by (replace with actual user ID from session/token)
-      startDate || null,
-      endDate || null,
-      deliveryUnit || null,
-      stakeholders || null,
-      deliveryManager || null,
-    ];
-
-    db.query(query, params, (err, result) => {
-      fs.unlinkSync(filePath); // Clean up uploaded file
-
-      if (err) {
-        console.error("DB error:", err);
-        return res.status(500).json({ error: "Failed to insert addendum into DB." });
-      }
-
-      res.json({
-        message: "Addendum uploaded successfully.",
-        addendumId: result.insertId,
-        startDate: startDate?.toISOString().split("T")[0] || null,
-        endDate: endDate?.toISOString().split("T")[0] || null,
-      });
-    });
-  } catch (err) {
-    console.error("Error uploading addendum:", err);
-
-    if (req.file?.path) {
-      try {
-        fs.unlinkSync(req.file.path);
-      } catch (unlinkErr) {
-        console.error("Cleanup error:", unlinkErr);
-      }
-    }
-
-    res.status(500).json({ error: "Internal server error." });
-  }
-};
-*/
 exports.uploadAddendum = async (req, res) => {
   try {
     const {
@@ -250,53 +179,6 @@ generateNotifications(sowId, startDate, endDate);
 };
 
 
-// // exports.getDashboard = (req, res) => {
-// //   db.query("WITH RankedSOW AS (SELECT s.sow_id,s.project_name,s.Start_date,s.end_date,s.delivery_unit,s.delivery_manager,CONCAT(u.First_name, ' ', u.Last_name) AS delivery_head,CASE WHEN s.status = 1 THEN 'Active' ELSE 'In-active' END AS Status,ROW_NUMBER() OVER (PARTITION BY s.project_name ORDER BY s.status DESC, s.sow_id DESC) AS row_num FROM sow AS s LEFT JOIN users AS u ON s.delivery_unit = u.delivery_unit AND u.role = 'Delivery Head' ) SELECT sow_id, project_name, Start_date, end_date, delivery_unit,delivery_manager, delivery_head, Status FROM RankedSOW WHERE row_num = 1 order by project_name", (err, results) => {
-// //     if (err) return res.status(500).json({ error: "Failed to fetch" });
-// //     res.json(results);
-// //   });
-// // };
-
-// exports.getDashboard = (req, res) => {
-//   db.query(
-//     `WITH RankedSOW AS (
-//       SELECT 
-//         s.sow_id,
-//         s.project_name,
-//         s.Start_date,
-//         s.end_date,
-//         s.delivery_unit,
-//         s.delivery_manager,
-//         CONCAT(u.First_name, ' ', u.Last_name) AS delivery_head,
-//         CASE 
-//           WHEN s.status = 1 THEN 'Active'
-//           WHEN s.status = 2 THEN 'About-End'
-//           ELSE 'In-active'
-//         END AS Status,
-//         ROW_NUMBER() OVER (PARTITION BY s.project_name ORDER BY s.status DESC, s.sow_id DESC) AS row_num
-//       FROM sow AS s
-//       LEFT JOIN users AS u ON s.delivery_unit = u.delivery_unit AND u.role = 'Delivery Head'
-//     )
-//     SELECT 
-//       sow_id, 
-//       project_name, 
-//       Start_date, 
-//       end_date, 
-//       delivery_unit,
-//       delivery_manager, 
-//       delivery_head, 
-//       Status
-//     FROM RankedSOW
-//     WHERE row_num = 1
-//     ORDER BY project_name`,
-//     (err, results) => {
-//       if (err) return res.status(500).json({ error: "Failed to fetch" });
-//       res.json(results);
-//     }
-//   );
-// };
-
-
 // Fetch Delivery Managers
 exports.getDeliveryManagers = (req, res) => {
   const query = `
@@ -351,50 +233,7 @@ WHERE sow_id = ?
 }
 
 
-// Update SOW by ID (for Edit SOW functionality)
-// exports.updateSOW = (req, res) => {
-//   const { sow_id } = req.params;
-//   const {
-//     project_name,
-//     Start_date,
-//     end_date,
-//     delivery_unit,
-//     // delivery_head, // Not stored in SOW table, but included for completeness
-//     delivery_manager,
-//     Status,
-//   } = req.body;
-
-//   // Map Status string to status integer (1: Active, 2: About-End, 0: In-active)
-//   let statusInt = 0;
-//   if (Status === "Active") statusInt = 1;
-//   else if (Status === "About-End") statusInt = 2;
-
-//   const query = `
-//     UPDATE sow
-//     SET project_name = ?, Start_date = ?, end_date = ?, delivery_unit = ?, delivery_manager = ?, status = ?
-//     WHERE sow_id = ?
-//   `;
-
-//   const params = [
-//     project_name,
-//     Start_date,
-//     end_date,
-//     delivery_unit,
-//     delivery_manager,
-//     statusInt,
-//     sow_id,
-//   ];
-
-//   // Note: delivery_head is not updated here because it's usually derived from users table
-
-//   db.query(query, params, (err, result) => {
-//     if (err) {
-//       console.error("Error updating SOW:", err);
-//       return res.status(500).json({ error: "Failed to update SOW" });
-//     }
-//     res.json({ message: "SOW updated successfully" });
-//   });
-// };
+// Update SOW
 exports.updateSOW = (req, res) => {
   const sow_id = req.params.sowId;
   const {

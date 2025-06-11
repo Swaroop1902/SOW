@@ -1,33 +1,3 @@
-// const db = require("../config/db");
-// const bcrypt = require("bcrypt");
-// const crypto = require("crypto");
-// const transporter = require("../utils/mailer");
-
-// exports.createUser = async (req, res) => {
-//   const { name, username, email } = req.body;
-//   const token = crypto.randomBytes(20).toString("hex");
-//   const defaultPassword = "changeme123"; // use a better one
-
-//   const hashed = await bcrypt.hash(defaultPassword, 10);
-
-//   db.query(
-//     "INSERT INTO users (name, username, email, password, reset_token, is_active) VALUES (?, ?, ?, ?, ?, 0)",
-//     [name, username, email, hashed, token],
-//     (err) => {
-//       if (err) return res.status(500).json({ error: "User creation failed" });
-
-//       const resetLink = `https://yourapp.com/reset-password/${token}`;
-//       transporter.sendMail({
-//         from: process.env.EMAIL_USER,
-//         to: email,
-//         subject: "Set Your Password",
-//         text: `Click to set your password: ${resetLink}`,
-//       });
-
-//       res.json({ message: "User invited" });
-//     }
-//   );
-// };
 const db = require("../config/db");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");

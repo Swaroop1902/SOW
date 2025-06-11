@@ -23,13 +23,20 @@ const AddNewUser = ({ onClose }) => {
       .then((res) => res.json())
       .then((data) => setDeliveryUnits(data))
       .catch((err) => console.error('Error fetching delivery units:', err));
+    // setDeliveryUnits([
+    //   'Delivery Unit 1',
+    //   'Delivery Unit 2',
+    //   'Delivery Unit 3',
+    //   'Delivery Unit 4',
+    //   'Delivery Unit 5'
+    // ]);
     setDeliveryUnits([
-      'Delivery Unit 1',
-      'Delivery Unit 2',
-      'Delivery Unit 3',
-      'Delivery Unit 4',
-      'Delivery Unit 5'
-    ]);
+  { label: 'Delivery Unit 1', value: 'DU-1' },
+  { label: 'Delivery Unit 2', value: 'DU-2' },
+  { label: 'Delivery Unit 3', value: 'DU-3' },
+  { label: 'Delivery Unit 4', value: 'DU-4' },
+  { label: 'Delivery Unit 5', value: 'DU-5' }
+]);
     setRoles(['Delivery Manager', 'Delivery Head']);
   }, []);
 
@@ -146,7 +153,7 @@ const AddNewUser = ({ onClose }) => {
 
             <div className={styles.formGroup}>
               <label htmlFor="deliveryUnit">Delivery Unit</label>
-              <select
+              {/* <select
                 id="deliveryUnit"
                 name="deliveryUnit"
                 value={formData.deliveryUnit}
@@ -159,7 +166,21 @@ const AddNewUser = ({ onClose }) => {
                     {unit}
                   </option>
                 ))}
-              </select>
+              </select> */}
+              <select
+  id="deliveryUnit"
+  name="deliveryUnit"
+  value={formData.deliveryUnit}
+  onChange={handleChange}
+  required
+>
+  <option value="">Select Delivery Unit</option>
+  {deliveryUnits.map((unit, index) => (
+    <option key={index} value={unit.value}>
+      {unit.label}
+    </option>
+  ))}
+</select>
             </div>
 
             {error && <p className={styles.error}>{error}</p>}
