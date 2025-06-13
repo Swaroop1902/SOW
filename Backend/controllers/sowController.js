@@ -125,7 +125,7 @@ exports.uploadAddendum = async (req, res) => {
 
     // Prepare insert query with addendum_type
     const query = `
-      INSERT INTO Addendum (
+      INSERT INTO addendum (
         sow_id, file_name, uploaded_by, start_date, end_date,
         delivery_unit, stakeholders, delivery_manager, upload_date,
         addendum_type
@@ -183,7 +183,7 @@ generateNotifications(sowId, startDate, endDate);
 exports.getDeliveryManagers = (req, res) => {
   const query = `
     SELECT user_id, First_name, Last_name, email, role, delivery_unit 
-    FROM Users 
+    FROM users 
     WHERE role = 'Delivery Manager';
   `;
 

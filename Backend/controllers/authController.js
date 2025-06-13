@@ -121,7 +121,7 @@ exports.resetPassword = (req, res) => {
         return res.status(500).json({ error: "Internal server error" });
       }
 
-      const updateQuery = "UPDATE Users SET password = ? WHERE user_id = ?";
+      const updateQuery = "UPDATE users SET password = ? WHERE user_id = ?";
       db.query(updateQuery, [hashedPassword, user_id], (err) => {
         if (err) {
           console.error("Error updating password:", err);

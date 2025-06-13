@@ -7,7 +7,7 @@ exports.createUser = async (req, res) => {
 
   // Insert user into the database
   const query = `
-    INSERT INTO Users (First_name, Last_name, email, role, delivery_unit, isactive)
+    INSERT INTO users (First_name, Last_name, email, role, delivery_unit, isactive)
     VALUES (?, ?, ?, ?, ?, ?)
   `;
 
