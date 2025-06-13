@@ -3,14 +3,161 @@
 const db = require("../config/db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const ldap = require('ldapjs');
 
 // Load from .env or hardcode for now
 const JWT_SECRET = process.env.JWT_SECRET || 'your_secret_key';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '1h';
 
 // Function for logging in a user
-exports.login = (req, res) => {
+// exports.login = (req, res) => {
+//   const { email, password } = req.body;
+
+//   const query = "SELECT * FROM users WHERE email = ?";
+//   db.query(query, [email], (err, results) => {
+//     if (err) {
+//       console.error("Query error:", err);
+//       return res.status(500).send("Internal server error");
+//     }
+
+//     if (results.length === 0) {
+//       return res.status(401).json({ success: false, message: "Invalid credentials" });
+//     }
+
+//     const user = results[0];
+//     const storedHashedPassword = user.password;
+
+//     bcrypt.compare(password, storedHashedPassword, (err, isMatch) => {
+//       if (err) {
+//         console.error("Error comparing passwords:", err);
+//         return res.status(500).send("Internal server error");
+//       }
+
+//       if (!isMatch) {
+//         return res.status(401).json({ success: false, message: "Invalid credentials" });
+//       }
+
+//       // Generate JWT with user_id
+//       const token = jwt.sign(
+//         { userId: user.user_id, email: user.email, name: `${user.First_name} ${user.Last_name}`, role: user.role }, // Include user_id in the payload
+//         JWT_SECRET,
+//         { expiresIn: JWT_EXPIRES_IN }
+//       );
+
+//       res.status(200).json({
+//         success: true,
+//         message: "Login successful",
+//         token,
+//         userInfo: {
+//           name: `${user.First_name} ${user.Last_name}`, // Combine first and last name
+//           role: user.role,
+//           email: user.email,
+//         },
+//       });
+//     });
+//   });
+// };
+ exports.login = async (req,res)=>{
   const { email, password } = req.body;
+    console.log(email, password);
+    const response = await authlogin(email, password);
+    console.log('Response in login:', response);
+    if(response.loginSuccess){
+      res.status(200).json(response);
+    } else {
+      res.status(401).json(response);
+    }
+ 
+}
+
+async function authlogin(email, password) {
+  let response = {loginSuccess: false, message: ''};
+  console.log('authlogin called with email:', email, 'and password:', password);
+  try{
+const createClient = await createLdapClient();
+    console.log('LDAP client created successfully');
+    console.log('createClient', createClient)
+    const authenticatedClient = await authenticateLdap(createClient,email,password);
+    // const user = await getUser(authenticatedClient, email);
+    if(authenticatedClient) {
+      response.loginSuccess = true;
+      response.message = 'Login successful';
+    }
+    console.log("AuthenticatedClient",authenticatedClient);
+  
+  }
+  catch (error) {
+  console.log('Error in authlogin:', error.message);
+    response.loginSuccess = false;
+    response.message = error.message;
+  }
+  console.log('Response in authlogin:', response);
+  return response;
+}
+const createLdapClient = () => new Promise((resolve, reject) => {
+  const client = ldap.createClient({
+    url: 'ldap://10.0.2.228:389',
+    reconnect: true,
+    tlsOptions: {
+        rejectUnauthorized: false, // Dev only. Remove in production with valid certs
+      },
+  });
+ 
+  client.on('error', (err) => {
+    console.warn('LDAP connection failed, but fear not, it will reconnect OK', err);
+    reject(client);
+  });
+  resolve(client);
+});
+ 
+const authenticateLdap = (connectedClient, email, password) => new Promise((resolve, reject) => {
+  console.log('in auth ldap', email, password);
+  connectedClient.bind(email, password, (err) => {
+    console.log('client called');
+    if (err) {
+      console.log(`Authentication error `, err);
+      reject(new Error(err.message));
+    } else {
+      resolve(connectedClient);
+    }
+  });
+});
+
+const getLdapUser = (authenticatedClient, email) => new Promise((resolve, reject) => {
+  const opts = {
+    scope: 'sub',
+    filter: `mail=${email}`,
+    attributes: ['displayName', 'telephoneNumber', 'mail'],
+    paged: true,
+    sizeLimit: 30,
+  };
+  authenticatedClient.search('dc=harbinger,dc=in', opts, (err, res) => {
+    const extensionArray = [];
+    if (err) {
+      console.log(`Search Error ${JSON.stringify(err)}`);
+      reject(new Error(err.message));
+    }
+    res.on('searchEntry', (entry) => {
+      console.log(`Entry`, JSON.stringify(entry));
+    });
+    res.on('searchReference', (referral) => {
+      console.log(`referral: ${referral.uris.join()}`);
+      });
+    res.on('error', (searchError) => {
+      console.log(`ON Error: ${searchError.message}`);
+      reject(new Error(searchError.message));
+    });
+    res.on('end', (result) => {
+      console.log(`Status: ${result.status}`);
+     
+      resolve(extensionArray);
+    });
+  });
+});
+
+ 
+exports.sowlogin = (req, res) => {
+  const { email } = req.body;
 
   const query = "SELECT * FROM users WHERE email = ?";
   db.query(query, [email], (err, results) => {
@@ -20,42 +167,48 @@ exports.login = (req, res) => {
     }
 
     if (results.length === 0) {
-      return res.status(401).json({ success: false, message: "Invalid credentials" });
+      // Email not found
+      console.log("Not found results");
+      return res.status(401).json({ success: false, message: "Not authorised" });
     }
 
     const user = results[0];
-    const storedHashedPassword = user.password;
 
-    bcrypt.compare(password, storedHashedPassword, (err, isMatch) => {
-      if (err) {
-        console.error("Error comparing passwords:", err);
-        return res.status(500).send("Internal server error");
-      }
+    // Generate JWT with user_id (optional, remove if not needed)
+    const token = jwt.sign(
+      {
+        userId: user.user_id,
+        email: user.email,
+        name: `${user.First_name} ${user.Last_name}`,
+        role: user.role
+      },
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRES_IN }
+    );
 
-      if (!isMatch) {
-        return res.status(401).json({ success: false, message: "Invalid credentials" });
-      }
-
-      // Generate JWT with user_id
-      const token = jwt.sign(
-        { userId: user.user_id, email: user.email, name: `${user.First_name} ${user.Last_name}`, role: user.role }, // Include user_id in the payload
-        JWT_SECRET,
-        { expiresIn: JWT_EXPIRES_IN }
-      );
-
-      res.status(200).json({
-        success: true,
-        message: "Login successful",
-        token,
-        userInfo: {
-          name: `${user.First_name} ${user.Last_name}`, // Combine first and last name
-          role: user.role,
-          email: user.email,
-        },
-      });
+    // User exists
+    res.status(200).json({
+      success: true,
+      message: "success",
+      token,
+      userInfo: {
+        name: `${user.First_name} ${user.Last_name}`,
+        role: user.role,
+        email: user.email,
+      },
     });
   });
 };
+
+// Usage example:
+// login(email, password)
+//   .then(result => {
+//     if (result.success) {
+//       console.log('Login successful:', result.user);
+//     } else {
+//       console.log('Login failed:', result.message);
+//     }
+//   });
 
 // Function to verify JWT token and fetch user details
 
@@ -141,3 +294,4 @@ exports.resetPassword = (req, res) => {
     });
   });
 };
+

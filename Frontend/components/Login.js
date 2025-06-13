@@ -16,17 +16,19 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
-  
+   localStorage.setItem('userEmail', email); // Store the entered email
+   console.log('Email stored in localStorage:', email); // Debugging line to check stored email
     try {
       const response = await axios.post(`${API_URL}/api/login`, {
         email,
         password,
       });
-  
-      if (response.data.success) {
+      console.log('Response from login:', response.data); // Debugging line to check response data
+      if (response.data.loginSuccess) {
         // Assuming the token is in response.data.token
+        
         localStorage.setItem('token', response.data.token); // Store token in localStorage
-        router.push('/dashboard');
+        router.push('/portal');
       } else {
         setErrorMessage('Invalid email or password.');
       }
@@ -39,8 +41,8 @@ const Login = () => {
   return (
     <div className={styles['login-container']}>
       <img src="/logo.jpeg" alt="WaveSOW Logo" className={styles.logo} />
-      <h1>Welcome to SOW Tracker</h1>
-      <p>Sign in to manage your SOW documents</p>
+      <h1>Welcome to Internal Apps</h1>
+      <p>Sign in to manage Internal Applications</p>
       <form onSubmit={handleSubmit}>
         <div className={styles['form-group']}>
           <label htmlFor="email">Email Address</label>
