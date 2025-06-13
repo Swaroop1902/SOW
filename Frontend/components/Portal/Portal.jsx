@@ -73,16 +73,10 @@ const Portal = () => {
       {/* Navigation Tabs */}
       <div className={styles.tabContainer}>
         <button
-          className={`${styles.tab} ${activeTab === "frequents" ? styles.activeTab : ""}`}
-          onClick={() => setActiveTab("frequents")}
-        >
-          Frequents
-        </button>
-        <button
           className={`${styles.tab} ${activeTab === "company" ? styles.activeTab : ""}`}
           onClick={() => setActiveTab("company")}
         >
-          Company: harbingergroup
+          Intenal Applications
         </button>
       </div>
 
